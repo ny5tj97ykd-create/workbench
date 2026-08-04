@@ -1,0 +1,1758 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="theme-color" content="#5B8FF9" />
+<title>朵·工作台 — 银行业律师的每日修炼</title>
+<link id="appFavicon" rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9' font-size='90' x='5'>🏠</text></svg>" />
+<style>
+/* ===== 基础变量 ===== */
+:root{
+  --bg:#F5F8FC;
+  --sidebar:#E8F1FB;
+  --sidebar-hover:#DCE9F7;
+  --primary:#5B8FF9;
+  --primary-dark:#3D6FE0;
+  --accent:#FF7B7B;
+  --warn:#FFB454;
+  --success:#52C49E;
+  --text:#2C3E50;
+  --text-sub:#7B8DA0;
+  --text-mute:#A8B6C8;
+  --card:#FFFFFF;
+  --border:#E2EAF3;
+  --shadow:0 4px 18px rgba(91,143,249,.08);
+  --shadow-hover:0 8px 24px rgba(91,143,249,.14);
+  --radius:14px;
+  --radius-sm:8px;
+}
+
+/* ===== 基础重置 ===== */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  font-size:14px;
+  line-height:1.6;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,textarea,select{font-family:inherit;font-size:inherit;color:inherit;outline:none;border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;background:var(--card);transition:border-color .2s}
+input:focus,textarea:focus,select:focus{border-color:var(--primary)}
+a{color:var(--primary);text-decoration:none}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:#C8D6E8;border-radius:3px}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ===== 布局 ===== */
+.app{display:flex;height:100vh;width:100vw}
+
+/* 侧边栏 */
+.sidebar{
+  width:260px;background:var(--sidebar);
+  display:flex;flex-direction:column;
+  border-right:1px solid var(--border);
+  flex-shrink:0;transition:transform .3s;
+  z-index:100;
+}
+.profile{
+  padding:28px 20px 22px;text-align:center;
+  border-bottom:1px solid rgba(91,143,249,.1);
+}
+.avatar{
+  width:64px;height:64px;border-radius:50%;
+  background:linear-gradient(135deg,#7BA8FF,#5B8FF9);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:28px;margin:0 auto 12px;
+  box-shadow:0 4px 14px rgba(91,143,249,.35);
+}
+.name{font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px}
+.signature{font-size:11px;color:var(--text-sub)}
+
+.menu{flex:1;padding:14px 12px;overflow-y:auto}
+.menu-item{
+  display:flex;align-items:center;gap:12px;
+  padding:11px 14px;border-radius:var(--radius-sm);
+  color:var(--text);font-size:14px;
+  cursor:pointer;transition:all .2s;margin-bottom:2px;
+}
+.menu-item:hover{background:var(--sidebar-hover)}
+.menu-item.active{
+  background:linear-gradient(90deg,rgba(91,143,249,.15),rgba(91,143,249,.05));
+  color:var(--primary-dark);font-weight:600;
+}
+.menu-item.active::before{
+  content:"";width:3px;height:18px;background:var(--primary);
+  border-radius:2px;margin-left:-14px;margin-right:11px;
+}
+.menu-icon{font-size:18px;width:22px;text-align:center}
+
+.menu-footer{padding:12px;border-top:1px solid rgba(91,143,249,.1)}
+.menu-footer .menu-item{color:var(--text-sub)}
+.menu-footer .menu-item.danger:hover{background:#FFE5E5;color:#E55}
+
+/* 主内容 */
+.main{
+  flex:1;display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.topbar{
+  height:60px;background:var(--card);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;flex-shrink:0;
+}
+.topbar-left{display:flex;align-items:center;gap:14px}
+.menu-toggle{display:none;width:36px;height:36px;border-radius:var(--radius-sm);background:var(--sidebar);align-items:center;justify-content:center;font-size:18px;color:var(--primary)}
+.page-title{font-size:18px;font-weight:600;color:var(--text)}
+.topbar-right{display:flex;align-items:center;gap:16px;color:var(--text-sub);font-size:13px}
+.date-info{display:flex;align-items:center;gap:8px}
+.streak-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  background:linear-gradient(135deg,#FFE5D6,#FFD0B0);
+  color:#D9692E;padding:4px 10px;border-radius:20px;
+  font-weight:600;font-size:12px;
+}
+.sync-status{
+  font-size:11px;color:var(--text-sub);background:var(--card);
+  border:1px solid var(--border);padding:4px 10px;border-radius:20px;white-space:nowrap;
+}
+.sync-status.ok{color:#1a7f37;border-color:#9be3af;background:#eafaf0}
+.sync-status.err{color:#c0392b;border-color:#f0b5ad;background:#fdecea}
+
+.content{
+  flex:1;overflow-y:auto;padding:24px 28px;
+}
+.view{display:none}
+.view.active{display:block;animation:fadeIn .3s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== 通用组件 ===== */
+.card{
+  background:var(--card);border-radius:var(--radius);
+  padding:20px;margin-bottom:16px;
+  box-shadow:var(--shadow);
+  border:1px solid var(--border);
+}
+.card-title{font-size:16px;font-weight:600;color:var(--text);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.card-title .badge{font-size:11px;background:var(--sidebar);color:var(--primary);padding:3px 10px;border-radius:10px;font-weight:500}
+
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 16px;border-radius:var(--radius-sm);
+  background:var(--primary);color:#fff;
+  font-size:13px;font-weight:500;
+  transition:all .2s;
+}
+.btn:hover{background:var(--primary-dark);box-shadow:0 4px 12px rgba(91,143,249,.3)}
+.btn.ghost{background:var(--sidebar);color:var(--primary)}
+.btn.ghost:hover{background:#D7E5F7}
+.btn.danger{background:var(--accent)}
+.btn.danger:hover{background:#E55}
+.btn.sm{padding:5px 12px;font-size:12px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+.tag{display:inline-block;padding:3px 10px;border-radius:10px;font-size:11px;background:var(--sidebar);color:var(--primary);margin-right:4px}
+.tag.warn{background:#FFF1DC;color:#D9692E}
+.tag.success{background:#D9F2E5;color:#2E9F76}
+.tag.danger{background:#FFE5E5;color:#E55}
+
+.empty{text-align:center;padding:40px 20px;color:var(--text-mute);font-size:13px}
+
+/* ===== 首页 Dashboard ===== */
+.dashboard-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:20px}
+.stat-card{
+  background:var(--card);border-radius:var(--radius);padding:20px;
+  box-shadow:var(--shadow);border:1px solid var(--border);
+  position:relative;overflow:hidden;
+}
+.stat-card::before{
+  content:"";position:absolute;top:0;left:0;width:4px;height:100%;
+}
+.stat-card.work::before{background:var(--primary)}
+.stat-card.study::before{background:var(--success)}
+.stat-card.workout::before{background:var(--accent)}
+.stat-label{color:var(--text-sub);font-size:12px;margin-bottom:6px}
+.stat-value{font-size:28px;font-weight:700;color:var(--text)}
+.stat-extra{color:var(--text-mute);font-size:11px;margin-top:4px}
+
+.today-tasks{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.task-tile{
+  background:var(--card);border-radius:var(--radius);padding:18px;
+  border:1px solid var(--border);box-shadow:var(--shadow);
+  cursor:pointer;transition:all .2s;
+}
+.task-tile:hover{transform:translateY(-2px);box-shadow:var(--shadow-hover)}
+.task-tile-icon{font-size:24px;margin-bottom:10px}
+.task-tile-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
+.task-tile-meta{font-size:12px;color:var(--text-sub)}
+.task-tile-progress{height:4px;background:var(--sidebar);border-radius:2px;margin-top:10px;overflow:hidden}
+.task-tile-progress-bar{height:100%;background:var(--primary);transition:width .4s}
+
+/* ===== 工作模块 ===== */
+.work-tabs{
+  display:flex;gap:6px;margin-bottom:16px;
+  background:var(--card);padding:6px;border-radius:var(--radius);
+  border:1px solid var(--border);width:fit-content;
+}
+.work-tab{
+  padding:8px 16px;border-radius:var(--radius-sm);
+  font-size:13px;color:var(--text-sub);cursor:pointer;
+  transition:all .2s;
+}
+.work-tab.active{background:var(--primary);color:#fff;font-weight:500}
+
+.add-form{
+  background:var(--card);padding:20px;border-radius:var(--radius);
+  margin-bottom:16px;border:1px solid var(--border);
+}
+.add-form-title{font-size:14px;font-weight:600;margin-bottom:14px;color:var(--text)}
+.form-row{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.form-row input,.form-row select{flex:1;min-width:140px}
+.form-row.full input{width:100%}
+.form-row textarea{width:100%;resize:vertical;min-height:60px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:inherit}
+
+.item-list{display:flex;flex-direction:column;gap:10px}
+.item{
+  background:var(--card);border-radius:var(--radius);
+  padding:14px 18px;border:1px solid var(--border);
+  border-left:3px solid var(--primary);
+  transition:all .2s;
+}
+.item:hover{box-shadow:var(--shadow)}
+.item.read{opacity:.6;border-left-color:var(--text-mute)}
+.item-head{display:flex;justify-content:space-between;align-items:start;gap:12px;margin-bottom:6px}
+.item-title{font-size:14px;font-weight:600;color:var(--text);flex:1}
+.item-actions{display:flex;gap:6px;flex-shrink:0}
+.icon-btn{
+  width:28px;height:28px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;color:var(--text-sub);
+  transition:all .2s;
+}
+.icon-btn:hover{background:var(--sidebar);color:var(--primary)}
+.item-meta{display:flex;gap:10px;font-size:11px;color:var(--text-mute);margin-bottom:8px;flex-wrap:wrap}
+.item-summary{
+  font-size:13px;color:var(--text);line-height:1.7;
+  background:var(--bg);padding:10px 12px;border-radius:var(--radius-sm);
+  margin-top:8px;
+}
+.item-summary.collapsed{
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  overflow:hidden;
+}
+.case-block{margin-top:8px;display:flex;flex-direction:column;gap:8px}
+.case-sec{font-size:13px;color:var(--text);background:var(--bg);padding:10px 12px;border-radius:var(--radius-sm);border-left:3px solid var(--primary);line-height:1.7}
+.case-label{display:block;font-size:11px;font-weight:700;color:var(--primary);margin-bottom:4px}
+
+/* ===== 学习模块 ===== */
+.study-tabs{
+  display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;
+}
+.study-tab{
+  padding:8px 18px;border-radius:20px;
+  font-size:13px;color:var(--text-sub);cursor:pointer;
+  background:var(--card);border:1px solid var(--border);
+  transition:all .2s;
+}
+.study-tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+.progress-bar-wrap{
+  background:var(--card);padding:14px 20px;border-radius:var(--radius);
+  margin-bottom:14px;border:1px solid var(--border);
+}
+.progress-label{display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px;color:var(--text-sub)}
+.progress-bar{height:8px;background:var(--sidebar);border-radius:4px;overflow:hidden}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--success));transition:width .4s}
+
+.vocab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:16px}
+.vocab-card{
+  background:var(--card);border-radius:var(--radius);padding:14px 86px 14px 14px;
+  border:1px solid var(--border);transition:all .2s;position:relative;
+}
+.vocab-card.mastered{background:linear-gradient(135deg,#F0FFF7,#D9F2E5);border-color:var(--success)}
+.vocab-word{font-size:18px;font-weight:700;color:var(--primary);margin-bottom:4px}
+.vocab-phonetic{font-size:11px;color:var(--text-mute);font-style:italic;margin-bottom:6px}
+.vocab-meaning{font-size:13px;color:var(--text);margin-bottom:6px}
+.vocab-example{font-size:11px;color:var(--text-sub);background:var(--bg);padding:6px 8px;border-radius:6px;border-left:2px solid var(--primary)}
+.vocab-card .card-actions{position:absolute;top:10px;right:10px;display:flex;gap:1px}
+.sentence-card .sentence-actions{display:flex;gap:4px;justify-content:flex-end;margin-bottom:8px}
+.sentence-actions .icon-btn:hover{background:var(--sidebar)}
+
+.sentence-card{
+  background:var(--card);padding:14px 18px;border-radius:var(--radius);
+  border:1px solid var(--border);margin-bottom:10px;
+  border-left:3px solid var(--success);
+}
+.sentence-en{font-size:14px;color:var(--text);font-weight:500;margin-bottom:6px}
+.sentence-cn{font-size:13px;color:var(--text-sub);margin-bottom:6px}
+.sentence-tag{font-size:11px;color:var(--primary);background:var(--sidebar);padding:2px 8px;border-radius:8px;display:inline-block}
+
+.plan-item{
+  background:var(--card);padding:14px 16px;border-radius:var(--radius);
+  border:1px solid var(--border);margin-bottom:8px;
+  display:flex;align-items:center;gap:12px;
+}
+.plan-day{width:36px;height:36px;border-radius:50%;background:var(--sidebar);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.plan-info{flex:1}
+.plan-theme{font-size:13px;font-weight:500;color:var(--text)}
+.plan-detail{font-size:11px;color:var(--text-sub);margin-top:2px}
+.plan-status{font-size:11px;color:var(--text-mute)}
+
+/* ===== 锻炼模块 ===== */
+.timer-card{
+  background:linear-gradient(135deg,#FFE8E8,#FFD6D6);
+  border-radius:var(--radius);padding:24px;margin-bottom:16px;
+  text-align:center;border:1px solid #FFC8C8;
+}
+.timer-display{
+  font-size:54px;font-weight:700;color:#E55;
+  font-variant-numeric:tabular-nums;
+  text-shadow:0 2px 8px rgba(229,85,85,.15);
+  margin:8px 0 14px;letter-spacing:2px;
+}
+.timer-mode{display:flex;justify-content:center;gap:8px;margin-bottom:14px}
+.timer-mode-btn{
+  padding:5px 14px;border-radius:14px;font-size:12px;
+  background:rgba(255,255,255,.6);color:#C45;
+  transition:all .2s;
+}
+.timer-mode-btn.active{background:#E55;color:#fff;font-weight:600}
+.timer-controls{display:flex;justify-content:center;gap:10px}
+.timer-btn{
+  padding:8px 22px;border-radius:20px;font-size:13px;font-weight:600;
+  background:#fff;color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.06);
+}
+.timer-btn.primary{background:#E55;color:#fff}
+
+.workout-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.workout-tab{
+  padding:8px 16px;border-radius:20px;font-size:13px;
+  background:var(--card);border:1px solid var(--border);color:var(--text-sub);
+  cursor:pointer;transition:all .2s;
+}
+.workout-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+.week-plan{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:16px}
+.day-cell{
+  background:var(--card);padding:10px 8px;border-radius:var(--radius-sm);
+  border:1px solid var(--border);text-align:center;cursor:pointer;
+  transition:all .2s;
+}
+.day-cell:hover{border-color:var(--primary)}
+.day-cell.active{border-color:var(--accent);background:#FFF5F5}
+.day-cell.done{background:#F0FFF7;border-color:var(--success)}
+.day-cell .dow{font-size:10px;color:var(--text-sub);margin-bottom:2px}
+.day-cell .date-num{font-size:14px;font-weight:600;color:var(--text)}
+.day-cell.done .date-num::after{content:" ✓";color:var(--success)}
+
+.exercise-list{display:flex;flex-direction:column;gap:10px}
+.exercise{
+  background:var(--card);padding:14px 18px;border-radius:var(--radius);
+  border:1px solid var(--border);border-left:3px solid var(--accent);
+  display:flex;align-items:center;gap:14px;
+}
+.exercise.done{opacity:.6;border-left-color:var(--success)}
+.ex-check{
+  width:24px;height:24px;border-radius:50%;
+  border:2px solid var(--border);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;flex-shrink:0;transition:all .2s;
+}
+.ex-check.checked{background:var(--success);border-color:var(--success);color:#fff}
+.exercise-info{flex:1}
+.ex-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px}
+.ex-meta{font-size:12px;color:var(--text-sub)}
+.ex-detail{font-size:11px;color:var(--text-mute);margin-top:4px}
+
+/* ===== 备忘录 ===== */
+.memo-input{width:100%;min-height:80px;margin-bottom:14px;padding:12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--card);resize:vertical;font-family:inherit}
+.memo-list{display:flex;flex-direction:column;gap:10px}
+.memo{
+  background:var(--card);padding:14px 18px;border-radius:var(--radius);
+  border:1px solid var(--border);white-space:pre-wrap;font-size:13px;
+}
+.memo-time{font-size:11px;color:var(--text-mute);margin-bottom:6px}
+
+/* ===== 设置 ===== */
+.settings-section{margin-bottom:16px}
+.settings-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:12px 0;border-bottom:1px solid var(--border);
+}
+.settings-row:last-child{border-bottom:none}
+.settings-label{font-size:13px;color:var(--text)}
+.settings-row input[type="text"]{width:200px}
+.icon-picker{display:flex;flex-wrap:wrap;gap:8px}
+.icon-opt{font-size:20px;width:42px;height:42px;display:flex;align-items:center;justify-content:center;border-radius:12px;border:2px solid var(--border);background:var(--card);cursor:pointer;transition:all .2s}
+.icon-opt:hover{border-color:var(--primary)}
+.icon-opt.active{border-color:var(--primary);background:var(--sidebar);box-shadow:0 0 0 2px rgba(91,143,249,.2)}
+
+/* 工作模块：每日推送 */
+.work-view-toggle{display:flex;gap:6px;margin:16px 0 8px}
+.wv-btn{padding:9px 18px;border-radius:20px;font-size:13px;color:var(--text-sub);cursor:pointer;background:var(--card);border:1px solid var(--border);transition:all .2s}
+.wv-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.push-header{background:linear-gradient(135deg,#EAF2FE,#F4F9FF);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-bottom:14px}
+.push-date{font-size:14px;font-weight:600;color:var(--primary-dark)}
+.push-tip{font-size:12px;color:var(--text-mute);margin-top:4px}
+.push-section{margin-bottom:18px}
+.push-section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--border)}
+.push-section-title{font-size:15px;font-weight:600;color:var(--text)}
+.push-section-count{font-size:12px;color:var(--success);background:#EAF7F1;padding:2px 10px;border-radius:12px}
+
+/* 学习模块：词典 */
+.dict-group{margin-bottom:18px}
+.dict-group-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:10px}
+.dict-note{font-size:12px;color:var(--text-sub);line-height:1.7;margin-bottom:12px}
+
+/* ===== 移动端 ===== */
+.backdrop{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99;
+}
+.backdrop.show{display:block}
+@media (max-width:768px){
+  .sidebar{
+    position:fixed;left:0;top:0;bottom:0;
+    transform:translateX(-100%);box-shadow:0 0 30px rgba(0,0,0,.2);
+  }
+  .sidebar.open{transform:translateX(0)}
+  .menu-toggle{display:flex}
+  .content{padding:16px}
+  .topbar{padding:0 16px}
+  .page-title{font-size:16px}
+  .topbar-right .date-info{display:none}
+  .dashboard-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .stat-card{padding:14px}
+  .stat-value{font-size:22px}
+  .week-plan{grid-template-columns:repeat(7,1fr);gap:4px}
+  .day-cell{padding:8px 4px}
+  .day-cell .date-num{font-size:12px}
+  .vocab-grid{grid-template-columns:1fr 1fr}
+  .timer-display{font-size:42px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- 侧边栏 -->
+  <aside class="sidebar" id="sidebar">
+    <div class="profile">
+      <div class="avatar">朵</div>
+      <div class="name" id="userName">黄雨朵</div>
+      <div class="signature">陪伴者工作群</div>
+    </div>
+    <nav class="menu">
+      <div class="menu-item active" data-view="dashboard"><span class="menu-icon">🏠</span>工作台</div>
+      <div class="menu-item" data-view="work"><span class="menu-icon">📋</span>工作台</div>
+      <div class="menu-item" data-view="study"><span class="menu-icon">📖</span>工作台</div>
+      <div class="menu-item" data-view="workout"><span class="menu-icon">💪</span>工作台</div>
+      <div class="menu-item" data-view="memo"><span class="menu-icon">📝</span>工作台</div>
+    </nav>
+    <div class="menu-footer">
+      <div class="menu-item" data-view="settings"><span class="menu-icon">⚙️</span>我的/设置</div>
+      <div class="menu-item danger" onclick="alert('这是演示版本，无登录功能')"><span class="menu-icon">🚪</span>退出登录</div>
+    </div>
+  </aside>
+  <div class="backdrop" id="backdrop"></div>
+
+  <!-- 主内容 -->
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" id="menuToggle">☰</button>
+        <div class="page-title" id="pageTitle">工作台</div>
+      </div>
+      <div class="topbar-right">
+        <div class="date-info"><span>📅</span><span id="dateLabel"></span></div>
+        <div class="sync-status" id="syncStatus">☁ 未连接云端</div>
+        <div class="streak-badge">🔥 连续 <span id="streakCount">0</span> 天</div>
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- ===== 工作台首页 ===== -->
+      <div class="view active" id="view-dashboard">
+        <div class="dashboard-grid">
+          <div class="stat-card work">
+            <div class="stat-label">📋 今日工作</div>
+            <div class="stat-value" id="stat-work">0/25</div>
+            <div class="stat-extra">法规8 + 合规8 + 保全8 + 案例1</div>
+          </div>
+          <div class="stat-card study">
+            <div class="stat-label">📖 今日学习</div>
+            <div class="stat-value" id="stat-study">0/13</div>
+            <div class="stat-extra">单词10 + 短句3</div>
+          </div>
+          <div class="stat-card workout">
+            <div class="stat-label">💪 今日运动</div>
+            <div class="stat-value" id="stat-workout">0</div>
+            <div class="stat-extra">个动作已完成</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">⚡ 今日快捷入口</div>
+          <div class="today-tasks">
+            <div class="task-tile" onclick="switchView('work')">
+              <div class="task-tile-icon">📋</div>
+              <div class="task-tile-title">工作模块</div>
+              <div class="task-tile-meta">法规 · 合规 · 保全 · 案例</div>
+              <div class="task-tile-progress"><div class="task-tile-progress-bar" id="prog-work" style="width:0%"></div></div>
+            </div>
+            <div class="task-tile" onclick="switchView('study')">
+              <div class="task-tile-icon">📖</div>
+              <div class="task-tile-title">英语学习</div>
+              <div class="task-tile-meta">法律 · 合规 · 金融</div>
+              <div class="task-tile-progress"><div class="task-tile-progress-bar" id="prog-study" style="width:0%"></div></div>
+            </div>
+            <div class="task-tile" onclick="switchView('workout')">
+              <div class="task-tile-icon">💪</div>
+              <div class="task-tile-title">运动打卡</div>
+              <div class="task-tile-meta">抗阻 · 力量 · 计时</div>
+              <div class="task-tile-progress"><div class="task-tile-progress-bar" id="prog-workout" style="width:0%"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🌟 今日寄语 <span class="badge" id="quoteTag">第 1 天</span></div>
+          <div id="quoteText" style="font-size:14px;color:var(--text);line-height:1.8"></div>
+        </div>
+      </div>
+
+      <!-- ===== 工作模块 ===== -->
+      <div class="view" id="view-work">
+        <div class="card" style="background:linear-gradient(135deg,#EAF2FE,#F4F9FF)">
+          <div class="card-title">🏛 权威法规来源（点击查阅最新原文）</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <a class="tag" href="https://www.nfra.gov.cn" target="_blank">国家金融监督管理总局</a>
+            <a class="tag" href="http://www.pbc.gov.cn" target="_blank">中国人民银行</a>
+            <a class="tag" href="https://www.court.gov.cn" target="_blank">最高人民法院</a>
+            <a class="tag" href="http://www.npc.gov.cn" target="_blank">全国人大法律库</a>
+          </div>
+          <div style="font-size:11px;color:var(--text-mute);margin-top:10px">📌 下方内容依据公开权威资料整理，仅供学习参考，请以官方发布原文为准。你仍可每日手动补充最新法规/案例。</div>
+        </div>
+        <div class="work-view-toggle" id="workViewToggle">
+          <div class="wv-btn active" data-mode="push">📅 今日推送</div>
+          <div class="wv-btn" data-mode="browse">🗂 分类浏览</div>
+        </div>
+
+        <div id="workPush" class="push-wrap"></div>
+
+        <div id="workBrowse" style="display:none">
+          <div class="work-tabs" id="workTabs">
+            <div class="work-tab active" data-cat="regulation">📚 金融法规</div>
+            <div class="work-tab" data-cat="compliance">🛡️ 银行合规</div>
+            <div class="work-tab" data-cat="preservation">⚖️ 保全与执行</div>
+            <div class="work-tab" data-cat="case">📑 案例解析</div>
+          </div>
+
+          <div class="add-form">
+            <div class="add-form-title">➕ 补充新条目（每日可添加最新法规/案例）</div>
+            <div class="form-row">
+              <input id="w-title" placeholder="标题（如：商业银行金融资产风险分类办法）" />
+              <input id="w-source" placeholder="发文机关 / 来源（如：国家金融监督管理总局）" />
+            </div>
+            <div class="form-row">
+              <input id="w-date" type="date" />
+              <input id="w-link" placeholder="原文链接（选填）" />
+            </div>
+            <div class="form-row full">
+              <textarea id="w-summary" placeholder="要点摘要（粘贴自官方文书 / 法律官网）"></textarea>
+            </div>
+            <button class="btn" onclick="addWorkItem()">� 保存条目</button>
+          </div>
+
+          <div id="workList" class="item-list"></div>
+        </div>
+      </div>
+
+      <!-- ===== 学习模块 ===== -->
+      <div class="view" id="view-study">
+        <div class="study-tabs" id="studyTabs">
+          <div class="study-tab active" data-cat="legal">⚖️ 法律英语</div>
+          <div class="study-tab" data-cat="compliance">🛡️ 合规英语</div>
+          <div class="study-tab" data-cat="finance">💰 金融英语</div>
+          <div class="study-tab" data-cat="dict">📖 词典</div>
+          <div class="study-tab" data-cat="plan">📅 学习计划</div>
+        </div>
+
+        <div id="studyToday">
+        <div class="progress-bar-wrap">
+          <div class="progress-label">
+            <span>今日学习进度</span>
+            <span id="studyProgressText">0 / 13</span>
+          </div>
+          <div class="progress-bar"><div class="progress-bar-fill" id="studyProgressFill" style="width:0%"></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📝 今日单词（10 个）</div>
+          <div class="vocab-grid" id="vocabGrid"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">💬 今日短句（3 个）</div>
+          <div id="sentenceList"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">✨ 添加新单词 / 短句</div>
+          <div class="form-row">
+            <select id="s-cat">
+              <option value="legal">法律英语</option>
+              <option value="compliance">合规英语</option>
+              <option value="finance">金融英语</option>
+            </select>
+            <input id="s-type" placeholder="类型：word / sentence" />
+          </div>
+          <div class="form-row">
+            <input id="s-en" placeholder="英文（单词或句子）" />
+            <input id="s-phonetic" placeholder="音标（选填）" />
+          </div>
+          <div class="form-row full">
+            <input id="s-cn" placeholder="中文释义" style="width:100%" />
+          </div>
+          <div class="form-row full">
+            <textarea id="s-example" placeholder="例句或用法说明（选填）"></textarea>
+          </div>
+          <button class="btn" onclick="addStudyItem()">💾 保存到词库</button>
+        </div>
+        </div><!-- /studyToday -->
+
+        <div id="dictView" style="display:none">
+          <div class="card">
+            <div class="card-title">🔍 词典查询（全库可查，点击 🔊 朗读，➕ 加入今日词库）</div>
+            <div class="dict-note">收录「法律 / 合规 / 金融」三类英语全部词条，支持中英文检索；🔊 朗读发音 · ➕ 加入今日学习词库 · ✓ 标记已掌握。</div>
+            <input id="dictSearch" placeholder="输入英文或中文查询，如 guarantee / 担保 / 抵押 / KYC …" oninput="renderDict()" style="width:100%;margin-bottom:14px" />
+            <div id="dictList"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 学习计划 -->
+      <div class="view" id="view-plan">
+        <div class="card">
+          <div class="card-title">📅 30 天学习计划</div>
+          <div id="planList"></div>
+        </div>
+      </div>
+
+      <!-- ===== 锻炼模块 ===== -->
+      <div class="view" id="view-workout">
+        <div class="timer-card">
+          <div style="font-size:14px;color:#C45;font-weight:500">⏱ 锻炼计时器</div>
+          <div class="timer-display" id="timerDisplay">00:00</div>
+          <div class="timer-mode">
+            <div class="timer-mode-btn active" data-mode="rest">锻炼计时</div>
+            <div class="timer-mode-btn" data-mode="total">休息计时</div>
+          </div>
+          <div class="timer-controls">
+            <button class="timer-btn" onclick="resetTimer()">重置</button>
+            <button class="timer-btn primary" id="timerBtn" onclick="toggleTimer()">开始</button>
+          </div>
+        </div>
+
+        <div class="workout-tabs" id="workoutTabs">
+          <div class="workout-tab active" data-day="1">周一 · 上肢</div>
+          <div class="workout-tab" data-day="2">周二 · 下肢</div>
+          <div class="workout-tab" data-day="3">周三 · 核心</div>
+          <div class="workout-tab" data-day="4">周四 · 上肢</div>
+          <div class="workout-tab" data-day="5">周五 · 下肢</div>
+          <div class="workout-tab" data-day="6">周六 · 全身</div>
+          <div class="workout-tab" data-day="0">周日 · 拉伸</div>
+        </div>
+
+        <div class="week-plan" id="weekPlan"></div>
+
+        <div class="card">
+          <div class="card-title">🔥 今日训练动作</div>
+          <div class="exercise-list" id="exerciseList"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">✨ 添加新动作</div>
+          <div class="form-row">
+            <input id="e-name" placeholder="动作名（如：哑铃弯举）" />
+            <select id="e-day">
+              <option value="1">周一 · 上肢</option>
+              <option value="2">周二 · 下肢</option>
+              <option value="3">周三 · 核心</option>
+              <option value="4">周四 · 上肢</option>
+              <option value="5">周五 · 下肢</option>
+              <option value="6">周六 · 全身</option>
+              <option value="0">周日 · 拉伸</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <input id="e-part" placeholder="部位（胸/背/腿/核心...）" />
+            <input id="e-equipment" placeholder="器械（哑铃/弹力带/自重）" />
+          </div>
+          <div class="form-row">
+            <input id="e-sets" placeholder="组数×次数（如：3×12）" />
+            <input id="e-duration" placeholder="时长（如：组间60s）" />
+          </div>
+          <div class="form-row full">
+            <textarea id="e-detail" placeholder="动作要点 / 注意事项"></textarea>
+          </div>
+          <button class="btn" onclick="addExercise()">💾 保存动作</button>
+        </div>
+      </div>
+
+      <!-- ===== 备忘录 ===== -->
+      <div class="view" id="view-memo">
+        <div class="card">
+          <div class="card-title">📝 快速记录</div>
+          <textarea id="memoInput" class="memo-input" placeholder="今天的工作心得、灵感、待办..."></textarea>
+          <button class="btn" onclick="addMemo()">💾 保存记录</button>
+        </div>
+        <div id="memoList" class="memo-list"></div>
+      </div>
+
+      <!-- ===== 设置 ===== -->
+      <div class="view" id="view-settings">
+        <div class="card">
+          <div class="card-title">👤 个人资料</div>
+          <div class="settings-section">
+            <div class="settings-row">
+              <div class="settings-label">姓名</div>
+              <input type="text" id="setting-name" value="黄雨朵" />
+            </div>
+            <div class="settings-row">
+              <div class="settings-label">签名</div>
+              <input type="text" id="setting-sig" value="陪伴者工作群" />
+            </div>
+            <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:10px">
+              <div class="settings-label">桌面图标（添加到主屏幕 / 浏览器标签显示）</div>
+              <div id="iconPicker" class="icon-picker"></div>
+              <input type="text" id="setting-icon" maxlength="2" placeholder="或输入自定义 emoji" style="width:160px" />
+            </div>
+          </div>
+          <button class="btn" onclick="saveSettings()">💾 保存设置</button>
+        </div>
+
+        <div class="card">
+          <div class="card-title">☁️ 云端同步（GitHub Gist · 免费）</div>
+          <div style="font-size:12px;color:var(--text-sub);line-height:1.7;margin-bottom:12px">
+            数据存到你自己的 GitHub 私有 Gist，手机/电脑打开同一链接即同步，无需电脑开机。<br/>
+            ① 在 GitHub 生成 Token（仅需 <b>gist</b> 权限）：<a href="https://github.com/settings/tokens" target="_blank">github.com/settings/tokens</a><br/>
+            ② 粘贴下方 Token 与 Gist ID（首次留空会自动新建），点「连接并同步」。
+          </div>
+          <div class="settings-row">
+            <div class="settings-label">GitHub Token</div>
+            <input type="password" id="setting-token" placeholder="ghp_xxx" style="width:220px" />
+          </div>
+          <div class="settings-row">
+            <div class="settings-label">Gist ID</div>
+            <input type="text" id="setting-gist" placeholder="首次留空自动新建" style="width:220px" />
+          </div>
+          <div class="settings-row">
+            <div class="settings-label">同步状态</div>
+            <span id="gistStatus" style="font-size:12px;color:var(--text-sub)">未连接</span>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+            <button class="btn" onclick="connectCloud()">🔗 连接并同步</button>
+            <button class="btn ghost sm" onclick="importOldData()">📥 导入本地旧数据</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">ℹ️ 关于</div>
+          <div style="color:var(--text-sub);font-size:13px;line-height:1.8">
+            数据存于你的 GitHub Gist 云端，多设备实时同步，无需电脑保持开机。
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+/* ============================================================
+   数据层（GitHub Gist 云端存储）
+============================================================ */
+const AUTH_KEY = 'duo_workbench_auth';
+function loadAuth(){ try{ return JSON.parse(localStorage.getItem(AUTH_KEY))||{}; }catch(e){ return {}; } }
+function saveAuth(a){ try{ localStorage.setItem(AUTH_KEY, JSON.stringify(a)); }catch(e){} }
+let auth = loadAuth();
+const today = () => new Date().toISOString().slice(0,10);
+const now   = () => new Date().toISOString();
+
+function defaultData(){
+  return {
+    profile:{name:'黄雨朵',sig:'陪伴者工作群',icon:'🏠'},
+    work:{regulation:[],compliance:[],preservation:[],case:[]},
+    study:{legal:[],compliance:[],finance:[]},
+    plan:[
+      {d:1,t:'银行基础概念',detail:'Bank, Lender, Borrower, Deposit, Loan'},
+      {d:2,t:'合规术语入门',detail:'Compliance, Regulation, KYC, AML'},
+      {d:3,t:'合同与担保',detail:'Contract, Guarantee, Mortgage, Pledge'},
+      {d:4,t:'诉讼与仲裁',detail:'Litigation, Arbitration, Plaintiff, Defendant'},
+      {d:5,t:'资产保全',detail:'Asset Preservation, Injunction, Freezing Order'},
+      {d:6,t:'强制执行',detail:'Enforcement, Execution, Seizure, Auction'},
+      {d:7,t:'金融衍生品',detail:'Derivative, Hedge, Swap, Option, Future'},
+      {d:8,t:'信贷与征信',detail:'Credit, Credit Report, Default, Overdue'},
+      {d:9,t:'破产与重组',detail:'Bankruptcy, Reorganization, Liquidation'},
+      {d:10,t:'反洗钱',detail:'Money Laundering, Suspicious Transaction, STR'},
+      {d:11,t:'数据与隐私',detail:'Data Privacy, GDPR, Personal Information'},
+      {d:12,t:'公司治理',detail:'Corporate Governance, Board, Fiduciary Duty'},
+      {d:13,t:'反垄断',detail:'Antitrust, Monopoly, Merger, Acquisition'},
+      {d:14,t:'资本市场',detail:'IPO, Equity, Bond, Underwriter'},
+      {d:15,t:'外汇管理',detail:'Forex, Exchange Rate, Cross-border Payment'},
+      {d:16,t:'保险法',detail:'Insurance, Policy, Premium, Indemnity'},
+      {d:17,t:'信托业务',detail:'Trust, Trustee, Beneficiary, Fiduciary'},
+      {d:18,t:'担保物权',detail:'Security Interest, Collateral, Priority'},
+      {d:19,t:'证据规则',detail:'Evidence, Burden of Proof, Admissible'},
+      {d:20,t:'管辖与送达',detail:'Jurisdiction, Service of Process, Forum'},
+      {d:21,t:'时效与除斥',detail:'Statute of Limitations, Laches'},
+      {d:22,t:'破产重整程序',detail:'Reorganization Procedure, Creditor Meeting'},
+      {d:23,t:'跨境执行',detail:'Cross-border Enforcement, Reciprocity'},
+      {d:24,t:'电子证据',detail:'Electronic Evidence, Digital Signature'},
+      {d:25,t:'金融犯罪',detail:'Financial Crime, Fraud, Embezzlement'},
+      {d:26,t:'消费者保护',detail:'Consumer Protection, Fair Dealing'},
+      {d:27,t:'ESG与可持续',detail:'ESG, Sustainable Finance, Green Bond'},
+      {d:28,t:'监管沙盒',detail:'Regulatory Sandbox, Pilot Program'},
+      {d:29,t:'AI与算法',detail:'Algorithm, AI Compliance, Model Risk'},
+      {d:30,t:'总复习',detail:'回顾高频词汇与短句，做模拟对话'},
+    ],
+    workout:{0:[],1:[],2:[],3:[],4:[],5:[],6:[]},
+    memos:[],
+    checkins:{study:[],workout:[]},
+    streak:0,
+  };
+}
+
+/* ---- 云端同步（GitHub Gist）---- */
+function setSyncStatus(txt, kind){
+  const el = document.getElementById('syncStatus');
+  if(el){ el.textContent = txt; el.className = 'sync-status ' + (kind||''); }
+  const gs = document.getElementById('gistStatus');
+  if(gs && kind!=='ok'){ /* 同步状态也反射到设置页 */ }
+}
+let _syncing=false, _syncTimer=null;
+function save(){ // 防抖同步到云端（重命名自原 localStorage 保存）
+  if(!auth.token || !auth.gistId) return; // 未配置云端：仅保留内存
+  clearTimeout(_syncTimer);
+  _syncTimer = setTimeout(doSync, 800);
+}
+async function doSync(){
+  if(_syncing) return; _syncing=true;
+  try{
+    const res = await fetch(`https://api.github.com/gists/${auth.gistId}`,{
+      method:'PATCH',
+      headers:{'Authorization':`Bearer ${auth.token}`,'Content-Type':'application/json'},
+      body: JSON.stringify({files:{'duo-workbench.json':{content:JSON.stringify(state)}}})
+    });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    setSyncStatus('☁ 已同步','ok');
+  }catch(e){ setSyncStatus('☁ 同步失败','err'); }
+  finally{ _syncing=false; }
+}
+async function loadCloud(){
+  if(!auth.token || !auth.gistId) return false;
+  try{
+    const res = await fetch(`https://api.github.com/gists/${auth.gistId}`,{headers:{'Authorization':`Bearer ${auth.token}`}});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const g = await res.json();
+    const c = g.files && g.files['duo-workbench.json'] ? g.files['duo-workbench.json'].content : null;
+    if(c){ state = Object.assign(defaultData(), JSON.parse(c)); }
+    return true;
+  }catch(e){ setSyncStatus('☁ 加载失败','err'); return false; }
+}
+async function createGist(){
+  const res = await fetch('https://api.github.com/gists',{
+    method:'POST',
+    headers:{'Authorization':`Bearer ${auth.token}`,'Content-Type':'application/json'},
+    body: JSON.stringify({description:'Duo Workbench 数据',public:false,files:{'duo-workbench.json':{content:JSON.stringify(state)}}})
+  });
+  const g = await res.json();
+  auth.gistId = g.id; saveAuth(auth);
+}
+let state = defaultData();
+
+/* 种子动作库（首次进入自动填充）*/
+function seedWorkout(){
+  if(state.workout[1].length) return; // 已初始化
+  const seed = {
+    1:[ // 周一 上肢
+      {name:'哑铃弯举',part:'二头肌',equip:'哑铃(2-4kg)',sets:'3×12',duration:'组间60s',detail:'坐姿或站姿，大臂贴紧身体，缓慢弯举至顶峰收缩1秒再下放。'},
+      {name:'哑铃推举',part:'肩部三角肌',equip:'哑铃',sets:'3×10',duration:'组间60s',detail:'坐姿，背靠椅背，哑铃举至肩侧，向上推举至双臂伸直，注意不要过度挺腰。'},
+      {name:'弹力带侧平举',part:'肩部中束',equip:'弹力带',sets:'3×15',duration:'组间45s',detail:'双脚踩住弹力带，双手握住两端，向两侧平举至与肩同高，缓慢下放。'},
+      {name:'俯卧撑(跪姿)',part:'胸部+三头',equip:'自重',sets:'3×8-12',duration:'组间60s',detail:'膝盖着地难度降低，身体保持一条直线，下放到胸部接近地面再推起。'},
+      {name:'哑铃划船',part:'背部',equip:'哑铃',sets:'3×12',duration:'组间60s',detail:'俯身，一只手一膝支撑，另一手持哑铃，将哑铃拉至腰侧，挤压背部。'},
+    ],
+    2:[ // 周二 下肢
+      {name:'哑铃深蹲',part:'大腿+臀部',equip:'哑铃',sets:'3×12',duration:'组间75s',detail:'双脚与肩同宽，双手握哑铃于身侧或肩前，下蹲至大腿与地面平行，膝盖不超过脚尖。'},
+      {name:'臀桥',part:'臀部',equip:'自重/弹力带',sets:'3×15',duration:'组间45s',detail:'仰卧屈膝，脚掌着地，臀部发力抬起至身体成一直线，顶峰收缩2秒。'},
+      {name:'弓步蹲',part:'大腿+平衡',equip:'哑铃(选)',sets:'3×10(每腿)',duration:'组间60s',detail:'前腿屈膝下蹲，后膝接近地面，前后腿均呈90度，保持躯干直立。'},
+      {name:'侧弓步',part:'大腿内侧',equip:'自重',sets:'3×10(每侧)',duration:'组间45s',detail:'向一侧迈出一大步下蹲，另一腿伸直，主要锻炼大腿内侧。'},
+      {name:'小腿提踵',part:'小腿',equip:'哑铃',sets:'3×15',duration:'组间45s',detail:'站立，双手持哑铃，脚尖抬起至最高点，缓慢下落。'},
+    ],
+    3:[ // 周三 核心
+      {name:'平板支撑',part:'核心整体',equip:'自重',sets:'3×45秒',duration:'组间45s',detail:'俯卧，前臂和脚尖撑地，身体保持一条直线，臀部不要塌陷或翘起。'},
+      {name:'卷腹',part:'腹直肌',equip:'自重',sets:'3×15',duration:'组间45s',detail:'仰卧屈膝，双手轻放头侧，靠腹肌力量抬起肩胛骨，不要用手拉脖子。'},
+      {name:'俄罗斯转体',part:'腹斜肌',equip:'哑铃(选)',sets:'3×20',duration:'组间45s',detail:'坐姿屈膝，躯干后倾，双手持重物(可空)，左右扭转身体。'},
+      {name:'死虫式',part:'深层核心',equip:'自重',sets:'3×10(每侧)',duration:'组间45s',detail:'仰卧抬腿抬臂，对侧手脚同时伸出收回，腰背贴紧地面。'},
+      {name:'鸟狗式',part:'核心+平衡',equip:'自重',sets:'3×10(每侧)',duration:'组间45s',detail:'四点跪姿，对侧手脚同时伸出，躯干保持稳定不晃动。'},
+    ],
+    4:[ // 周四 上肢
+      {name:'哑铃卧推',part:'胸部',equip:'哑铃+长凳',sets:'3×10',duration:'组间75s',detail:'仰卧长凳，双手持哑铃于胸侧，向上推举至双臂伸直，下放时肘部略低于肩。'},
+      {name:'哑铃飞鸟',part:'胸部外侧',equip:'哑铃',sets:'3×12',duration:'组间60s',detail:'仰卧，双手持哑铃伸直于胸上方，向两侧张开至胸部有拉伸感，再合拢。'},
+      {name:'三头臂屈伸',part:'三头肌',equip:'哑铃',sets:'3×12',duration:'组间45s',detail:'双手持一只哑铃于头顶，向下屈伸至颈后，挤压三头再回位。'},
+      {name:'弹力带高位下拉',part:'背部',equip:'弹力带',sets:'3×12',duration:'组间60s',detail:'弹力带固定高处，双手下拉至胸前，挤压背阔肌。'},
+      {name:'哑铃耸肩',part:'斜方肌',equip:'哑铃',sets:'3×12',duration:'组间45s',detail:'站立持哑铃，肩膀向上耸起到最高点，缓慢下落。'},
+    ],
+    5:[ // 周五 下肢
+      {name:'保加利亚分腿蹲',part:'大腿+臀部',equip:'哑铃',sets:'3×10(每腿)',duration:'组间75s',detail:'后脚抬高置于椅上，前腿下蹲至大腿平行地面，挑战平衡和单腿力量。'},
+      {name:'罗马尼亚硬拉',part:'大腿后侧+臀',equip:'哑铃',sets:'3×12',duration:'组间75s',detail:'站立持哑铃，髋部后移，膝盖微屈，感受大腿后侧拉伸，再站起。'},
+      {name:'臀桥(单腿)',part:'臀部',equip:'自重',sets:'3×10(每腿)',duration:'组间45s',detail:'单腿臀桥，更强刺激，可进阶到髋部顶峰停顿2秒。'},
+      {name:'深蹲跳',part:'爆发力+心肺',equip:'自重',sets:'3×8',duration:'组间90s',detail:'下蹲后爆发跳起，落地缓冲。中年女性可量力而行或改为半蹲快起。'},
+      {name:'螃蟹步',part:'臀中肌',equip:'弹力带',sets:'3×15(每方向)',duration:'组间45s',detail:'弹力带套于膝盖上方，半蹲横向行走，锻炼臀中肌和稳定性。'},
+    ],
+    6:[ // 周六 全身
+      {name:'哑铃硬拉',part:'背部+腿后',equip:'哑铃',sets:'3×12',duration:'组间75s',detail:'罗马尼亚硬拉基础上的完整版本，背部挺直，髋部主导发力。'},
+      {name:'俯身划船',part:'背部',equip:'哑铃',sets:'3×12',duration:'组间60s',detail:'双脚与肩同宽，俯身持哑铃，划船至腰侧。'},
+      {name:'哑铃复合架',part:'肩+腿+核心',equip:'哑铃',sets:'3×10',duration:'组间75s',detail:'深蹲+推举的复合动作，一气呵成，挑战全身协调。'},
+      {name:'波比跳(简易)',part:'心肺+全身',equip:'自重',sets:'3×6',duration:'组间90s',detail:'站立下蹲→俯卧撑→站起跳起，量力而行，可去掉俯卧撑部分。'},
+      {name:'登山',part:'核心+心肺',equip:'自重',sets:'3×20(每腿)',duration:'组间60s',detail:'俯撑姿势，交替提膝到胸前，速度适中。'},
+    ],
+    0:[ // 周日 拉伸
+      {name:'全身拉伸',part:'全身放松',equip:'瑜伽垫',sets:'1×15分钟',duration:'持续',detail:'颈部、肩部、背部、腰部、�部、腿部全面拉伸，每个动作保持30秒。'},
+      {name:'泡沫轴放松',part:'筋膜放松',equip:'泡沫轴',sets:'1×10分钟',duration:'持续',detail:'针对大腿前侧、外侧、背部，每个部位滚动1-2分钟。'},
+      {name:'冥想呼吸',part:'身心放松',equip:'瑜伽垫',sets:'1×10分钟',duration:'持续',detail:'盘坐或仰卧，深长呼吸，关注当下，释放一周疲劳。'},
+    ],
+  };
+  Object.assign(state.workout, seed);
+  save();
+}
+
+/* 种子词库 */
+function seedStudy(){
+  const all = state.study.legal.length + state.study.compliance.length + state.study.finance.length;
+  if(all>0) return;
+  state.study.legal = [
+    {en:'plaintiff',phonetic:'/ˈpleɪntɪf/',cn:'原告',example:'The plaintiff filed a lawsuit against the bank.',type:'word',mastered:false},
+    {en:'defendant',phonetic:'/dɪˈfendənt/',cn:'被告',example:'The defendant failed to repay the loan on time.',type:'word',mastered:false},
+    {en:'jurisdiction',phonetic:'/ˌdʒʊərɪsˈdɪk�n/',cn:'管辖权',example:'This court has jurisdiction over the dispute.',type:'word',mastered:false},
+    {en:'statute of limitations',cn:'诉讼时效',example:'The claim is barred by the statute of limitations.',type:'word',mastered:false},
+    {en:'injunction',cn:'禁令/保全',example:'The court granted a preliminary injunction.',type:'word',mastered:false},
+    {en:'burden of proof',cn:'举证责任',example:'The burden of proof lies with the plaintiff.',type:'word',mastered:false},
+    {en:'liquidated damages',cn:'违约金',example:'The contract stipulates liquidated damages of 5%.',type:'word',mastered:false},
+    {en:'force majeure',cn:'不可抗力',example:'Force majeure may exempt contractual obligations.',type:'word',mastered:false},
+    {en:'indemnity',cn:'赔偿/补偿',example:'The borrower shall indemnify the lender for losses.',type:'word',mastered:false},
+    {en:'novation',cn:'债务更新',example:'Novation requires consent of all parties.',type:'word',mastered:false},
+    {en:'The statute of limitations for this type of claim is three years.',cn:'此类诉讼的时效为三年。',type:'sentence',mastered:false},
+    {en:'Please produce evidence to support your allegation.',cn:'请提供证据支持你的主张。',type:'sentence',mastered:false},
+    {en:'The court hereby rules in favor of the plaintiff.',cn:'法院据此判原告胜诉。',type:'sentence',mastered:false},
+  ];
+  state.study.compliance = [
+    {en:'KYC (Know Your Customer)',cn:'了解你的客户',example:'Banks must perform KYC before opening accounts.',type:'word',mastered:false},
+    {en:'AML (Anti-Money Laundering)',cn:'反洗钱',example:'AML procedures include customer due diligence.',type:'word',mastered:false},
+    {en:'CDD (Customer Due Diligence)',cn:'客户尽职调查',example:'Enhanced CDD is required for PEPs.',type:'word',mastered:false},
+    {en:'STR (Suspicious Transaction Report)',cn:'可疑交易报告',example:'Banks must file STRs within prescribed timeframes.',type:'word',mastered:false},
+    {en:'sanctions screening',cn:'制裁名单筛查',example:'Sanctions screening is part of onboarding.',type:'word',mastered:false},
+    {en:'PEP (Politically Exposed Person)',cn:'政治公众人物',example:'PEPs require enhanced due diligence.',type:'word',mastered:false},
+    {en:'risk-based approach',cn:'基于风险的方法',example:'A risk-based approach is fundamental to compliance.',type:'word',mastered:false},
+    {en:'whistleblower',cn:'举报人',example:'Whistleblowers are protected by internal policies.',type:'word',mastered:false},
+    {en:'internal control',cn:'内部控制',example:'Internal controls must be reviewed annually.',type:'word',mastered:false},
+    {en:'regulatory capital',cn:'监管资本',example:'Banks must maintain adequate regulatory capital.',type:'word',mastered:false},
+    {en:'We detected a suspicious transaction and filed an STR.',cn:'我们发现可疑交易并提交了报告。',type:'sentence',mastered:false},
+    {en:'The bank failed to conduct adequate customer due diligence.',cn:'银行未进行充分的客户尽职调查。',type:'sentence',mastered:false},
+    {en:'Compliance with AML regulations is non-negotiable.',cn:'遵守反洗钱规定是不可妥协的。',type:'sentence',mastered:false},
+  ];
+  state.study.finance = [
+    {en:'principal',cn:'本金',example:'The principal will be repaid at maturity.',type:'word',mastered:false},
+    {en:'maturity',cn:'到期日',example:'The bond has a 5-year maturity.',type:'word',mastered:false},
+    {en:'collateral',cn:'担保物/抵押品',example:'The loan is secured by collateral.',type:'word',mastered:false},
+    {en:'mortgage',cn:'抵押',example:'The mortgage is registered with the land authority.',type:'word',mastered:false},
+    {en:'pledge',cn:'质押',example:'Pledge of shares requires registration.',type:'word',mastered:false},
+    {en:'NPL (Non-Performing Loan)',cn:'不良贷款',example:'NPL ratios have decreased this quarter.',type:'word',mastered:false},
+    {en:'credit risk',cn:'信用风险',example:'Credit risk is the primary risk in lending.',type:'word',mastered:false},
+    {en:'liquidity',cn:'流动性',example:'Liquidity coverage ratio is a key metric.',type:'word',mastered:false},
+    {en:'interest rate spread',cn:'利差',example:'Net interest margin depends on the spread.',type:'word',mastered:false},
+    {en:'default',cn:'违约',example:'Default triggers cross-default clauses.',type:'word',mastered:false},
+    {en:'The borrower defaulted on the loan repayment.',cn:'借款人未按约偿还贷款。',type:'sentence',mastered:false},
+    {en:'The collateral shall be disposed of through public auction.',cn:'担保物将通过公开拍卖处置。',type:'sentence',mastered:false},
+    {en:'We propose a restructuring of the outstanding debt.',cn:'我们建议对未偿债务进行重组。',type:'sentence',mastered:false},
+  ];
+  save();
+}
+
+/* 种子法规库（依据公开权威资料整理，以官方原文为准）*/
+
+/* 案例种子：四类结构（案件名称 / 事实输入 / 问题识别 / 法律分析 / 知识沉淀）*/
+const SEED_CASES = [
+  {id:231,title:'某股份制银行与甲公司金融借款合同纠纷执行分配案',source:'最高人民法院执行案例',date:'—',link:'https://www.court.gov.cn',
+    fact:'甲企业向A银行借款2000万元，以自有厂房及土地使用权提供抵押担保，并在不动产登记中心办理了抵押登记（登记顺位第一）。贷款到期甲企业未偿还，A银行起诉并获生效判决。进入执行程序后查明：该厂房此前已被另一普通金钱债权人B公司申请首封，且另有C公司轮候查封；厂房评估价值2600万元，尚不足以同时满足抵押债权与普通债权。A银行作为抵押权人，向执行法院主张就变价款优先受偿。',
+    issue:'1）已办理登记的抵押权人在首封法院主导的处置程序中，能否对抗普通金钱债权人优先受偿？\n2）首封、轮候查封与抵押权并存时，变价款的清偿顺序如何确定？\n3）抵押权人应以何种程序（参与分配 / 执行异议）主张优先受偿？\n4）若首封法院怠于保障抵押权，抵押权人有何救济路径？',
+    analysis:'根据《民法典》第394、410、414条，抵押权为担保物权，登记生效且按登记先后确定优先顺位，优先于普通金钱债权。依据《民事诉讼法》及《民诉法解释》关于参与分配的规定，执行法院对被执行人财产变价后，应当先清偿享有优先受偿权的债权（如抵押权），剩余部分再按债权比例清偿普通债权。首封法院虽主导处置，但应在变价款中保留抵押权人的优先受偿份额，不得与普通债权混同分配。A银行可：①向执行法院提交优先受偿主张及权属证明，直接参与分配；②若分配方案未保障其优先权，依《民诉法》第232条提出执行异议；③涉及执转破的，抵押权在破产程序中亦属别除权，就特定财产优先清偿。',
+    lesson:'实务提示：①放贷环节务必及时办理抵押登记以确立优先顺位，这是优先受偿的根基；②执行阶段应主动跟踪首封法院处置进展，第一时间提交优先受偿申请与登记证明，避免被“普通债权化”；③遇分配方案不公或首封法院迟延，果断提起执行异议并固定证据；④关注执转破风险，提前就别除权财产主张权利，防止清偿顺位被稀释。',
+    read:false},
+  {id:232,title:'某银行申请诉前财产保全（股权与账户冻结）案',source:'地方法院典型案例',date:'—',link:'https://www.court.gov.cn',
+    fact:'银行贷后检查发现借款人乙公司突然将基本账户资金大额转出、低价处置生产设备，且涉多起被执行案件、对外担保爆雷，资产流失风险紧迫。银行在正式起诉前，向被保全财产所在地法院申请诉前保全，请求冻结乙公司银行账户资金1200万元及持有的丙公司12%股权，并提供了等额现金担保与财产线索清单。',
+    issue:'1）诉前财产保全的法定适用条件是什么？\n2）担保应如何提供、数额如何确定，超额保全有何后果？\n3）法院受理后的裁定与执行期限如何？\n4）申请错误导致被申请人损失的，申请人承担何种责任？',
+    analysis:'《民事诉讼法》第104条规定，诉前保全适用于“情况紧急，不立即申请保全将使利害关系人的合法权益受到难以弥补损害”的情形，申请人必须提供担保，法院接受申请后须在48小时内作出裁定；裁定采取的，应立即开始执行。保全范围应限于请求的范围或与本案有关的财物（《民诉法》第103条），担保数额通常相当于请求保全的数额（参照《财产保全规定》第5条）。依第105条，申请有错误的，申请人应赔偿被申请人因保全所遭受的损失；申请人须在保全后30日内提起诉讼或申请仲裁，否则法院应解除保全。',
+    lesson:'实务提示：①一旦发现债务人转移、隐匿财产迹象，立即固定流水、合同、工商变更等证据；②备齐等值担保与明确财产线索后尽快申请诉前保全，抢占处置先机；③保全金额应与债权数额相当，避免超额保全引发赔偿；④务必在30日内提起诉讼，否则保全自动解除，前功尽弃；⑤对股权保全应同步通知公司及登记机关，防止处分。',
+    read:false},
+  {id:233,title:'某银行不良资产债权转让与申请执行人变更执行异议案',source:'最高人民法院指导案例',date:'—',link:'https://www.court.gov.cn',
+    fact:'A银行将一笔本金5000万元的不良债权（含抵押与保证）打包转让给金融资产管理公司D，双方签订债权转让协议，并通过公证送达、报纸公告等方式依法通知了债务人及担保人。执行中，D公司申请变更其为申请执行人。被执行人及次债务人E提出异议：主张债权转让未经其同意而无效，且次债务人E已向原债权人A银行履行了部分债务，请求中止对该部分执行。',
+    issue:'1）债权转让对债务人、担保人产生效力（及申请执行人可变更）的条件？\n2）变更申请执行人的法定程序与审查要点？\n3）次债务人提出的“已向原债权人履行”异议，应如何审查与处理，如何防范虚假履行逃债？',
+    analysis:'《民法典》第546条规定，债权人转让债权应通知债务人，未通知的对债务人不发生效力——通知是转让对债务人生效的要件，而非转让本身的生效要件。依法转让并通知后，受让人取得与原债权有关的从权利（含抵押权，依第407条随主债权转让）。依据《最高人民法院关于民事执行中变更、追加当事人若干问题的规定》第9条，申请执行人将生效法律文书确定的债权依法转让给第三人、且书面认可第三人取得该债权的，法院可裁定变更、追加其为申请执行人。次债务人E主张已对原债权人履行，应在执行异议中承担举证责任；异议成立的，法院应中止对该部分款项执行。法院须实质审查履行凭证，防止债务人与次债务人通谋虚假履行以逃废债。',
+    lesson:'实务提示：①不良资产转让务必依法通知并全程留存送达、公告证据，确保对债务人发生效力；②变更申请执行人应备齐转让协议、通知证明及原债权人书面认可，依程序办理；③面对次债务人异议，应要求其提供付款凭证、记账凭证等充分证据，必要时提起代位权诉讼或许可执行之诉；④对随主债权转让的抵押权及时办理变更登记，闭环权利链条，堵住逃废债漏洞。',
+    read:false},
+];
+
+/* 案例数据迁移：将早期旧版案例（id 131-133）替换为结构化新案例 */
+function migrateWork(){
+  const OLD=[131,132,133];
+  if(state.work.case.some(c=>OLD.includes(c.id))){
+    state.work.case = state.work.case.filter(c=>!OLD.includes(c.id));
+    const have = new Set(state.work.case.map(c=>c.id));
+    SEED_CASES.forEach(c=>{ if(!have.has(c.id)) state.work.case.push({...c}); });
+    save();
+  }
+}
+
+function seedWork(){
+  if(state.work.regulation.length || state.work.compliance.length || state.work.preservation.length || state.work.case.length){
+    return;
+  }
+  state.work.regulation = [
+    {id:101,title:'商业银行金融资产风险分类办法',source:'国家金融监督管理总局令2023年第1号',date:'2024-07-01',link:'https://www.nfra.gov.cn',summary:'【条文要点】第5-8条：金融资产按风险程度分为正常、关注、次级、可疑、损失五级；第10条：逾期90天以上债权至少归为次级类；第11条：同一债务人在本行债权5%以上分类为不良的，该债务人全部债权归为不良；第13条：重组资产应至少归为关注类。',read:false},
+    {id:102,title:'商业银行资本管理办法',source:'国家金融监督管理总局令2023年第4号',date:'2024-01-01',link:'https://www.nfra.gov.cn',summary:'【条文要点】实行三档差异化监管：一档行适用标准法、三档行适用简化标准；资本充足率底线：核心一级资本≥5%、一级资本≥6%、资本充足率≥8%，另加储备资本2.5%；操作风险采用新标准法计量。',read:false},
+    {id:103,title:'中华人民共和国商业银行法',source:'全国人大常委会（2015修正）',date:'2015-08-29',link:'http://www.npc.gov.cn',summary:'【条文要点】第11条：设立商业银行须经国务院银行业监督管理机构批准；第13条：注册资本最低限额（全国性10亿、城市1亿、农村5000万元）；第39条审慎经营规则：资本充足率≥8%、流动性比例、单一客户贷款集中度≤10%、关联企业贷款集中度≤15%。',read:false},
+    {id:104,title:'中华人民共和国银行业监督管理法',source:'全国人大常委会（2006修正）',date:'2006-10-31',link:'http://www.npc.gov.cn',summary:'【条文要点】第34条：监管机构有权实地现场检查、查阅复制资料、封存文件；第37条：可责令整改、暂停部分业务、停止批准开办新业务、限制资产转让、责令控股股东转让股权；第39条：可责令停业整顿、接管或撤销。',read:false},
+    {id:105,title:'中华人民共和国中国人民银行法',source:'全国人大常委会（2003修正）',date:'2003-12-27',link:'http://www.pbc.gov.cn',summary:'【条文要点】第4条央行职责：拟订货币政策、发行人民币、经理国库、维护支付清算系统、指导反洗钱、管理外汇与黄金储备；第23条货币政策工具：存款准备金、基准利率、再贴现、公开市场操作、外汇操作。',read:false},
+    {id:106,title:'储蓄管理条例',source:'国务院令第107号（2011修订）',date:'1993-03-01',link:'http://www.gov.cn',summary:'【条文要点】第5条：储蓄原则为存款自愿、取款自由、存款有息、为储户保密；第25条：提前支取按活期存款利率计息；第31条：存单（折）挂失须持身份证明，7天后补发；第14条：储蓄机构须保证存款支付。',read:false},
+    {id:107,title:'中华人民共和国票据法',source:'全国人大常委会（2004修正）',date:'2004-08-28',link:'http://www.npc.gov.cn',summary:'【条文要点】第13条：票据债务人不得以与出票人/前手的抗辩对抗善意持票人（无因性）；第27条：持票人可背书转让票据权利；第17条：票据权利时效——汇票/本票2年、支票6个月；第61条：被拒付后可行使追索权。',read:false},
+    {id:108,title:'金融租赁公司管理办法',source:'国家金融监督管理总局令2024年第6号',date:'2024-11-01',link:'https://www.nfra.gov.cn',summary:'【条文要点】第3条：金融租赁公司不得吸收存款、发放贷款（以经营租赁为主）；第4条：业务应回归融物本源、服务实体经济；第28条：租赁物应为权属清晰、真实存在且能产生收益的固定资产；受集中度与杠杆率监管。',read:false},
+  ];
+  state.work.compliance = [
+    {id:111,title:'商业银行合规风险管理指引',source:'银监发〔2006〕76号',date:'2006-10-20',link:'https://www.nfra.gov.cn',summary:'【条文要点】第6条：董事会对合规管理负最终责任，应审议批准合规政策；第9条：高管层应制定合规政策、组建合规管理部门并保持其独立性；第15条：合规管理部门应独立于业务部门，可直接向董事会报告；第19条：建立合规风险评估与监测机制。',read:false},
+    {id:112,title:'银行业金融机构反洗钱和反恐怖融资管理办法',source:'银保监会令2019年第1号',date:'2019-02-02',link:'https://www.nfra.gov.cn',summary:'【条文要点】第3条：机构应建洗钱风险管理体系，董事会承担最终责任；第12条：建立健全客户身份识别（KYC）制度；第13条：大额交易和可疑交易报告制度；第16条：制裁名单监测与资产冻结；第25条：保存客户身份资料与交易记录。',read:false},
+    {id:113,title:'金融机构客户身份识别和客户身份资料及交易记录保存管理办法',source:'央行银保监会证监会令〔2022〕第1号',date:'2022-03-01',link:'http://www.pbc.gov.cn',summary:'【条文要点】第3条：金融机构应开展客户尽职调查（CDD），了解客户及其交易目的；第9条：对高风险客户、政治公众人物（PEP）采取强化尽职调查（EDD）；第19条：身份资料与交易记录保存至少5年（自业务关系终止后）。',read:false},
+    {id:114,title:'商业银行内部控制指引',source:'银监发〔2014〕40号',date:'2014-09-12',link:'https://www.nfra.gov.cn',summary:'【条文要点】第5条：内控五要素（内控环境、风险识别与评估、控制活动、信息交流与反馈、监督评价与纠正）；第10条：不相容岗位相分离；第11条：授权审批控制；第12条：会计系统控制与运营控制；第15条：建立信息交流与反馈机制。',read:false},
+    {id:115,title:'商业银行理财业务监督管理办法',source:'银保监会令2018年第6号',date:'2018-09-26',link:'https://www.nfra.gov.cn',summary:'【条文要点】第2条：理财业务为非保本，风险由投资者自担；第15条：实行净值化管理、公允价值计量；第26条：投资者适当性管理，匹配风险承受能力；第28条：理财产品应登记、穿透底层资产；第34条：销售专区录音录像（双录）。',read:false},
+    {id:116,title:'商业银行股权管理暂行办法',source:'银监会令2018年第1号',date:'2018-01-05',link:'https://www.nfra.gov.cn',summary:'【条文要点】第4条：主要股东（持股≥5%或具重大影响）应逐层披露股权结构至实际控制人；第9条：股东资质审查，负面情形不得入股；第12条：主要股东应书面承诺遵守法规、不干预经营；第33条：限制股权质押；关联交易受限。',read:false},
+    {id:117,title:'银行保险机构操作风险管理办法',source:'国家金融监督管理总局令2023年第5号',date:'2024-07-01',link:'https://www.nfra.gov.cn',summary:'【条文要点】第3条：操作风险指不完善或有问题的内部程序、人员、系统或外部事件所造成损失的风险；第6条：三道防线（业务部门、风险管理部门、内审）；第10条：开展风险与控制自我评估（RCSA）、损失数据收集（LDC）；第12条：业务连续性管理。',read:false},
+    {id:118,title:'金融机构衍生产品交易业务管理暂行办法',source:'银监会令〔2004〕第1号（2011修订）',date:'2004-03-01',link:'https://www.nfra.gov.cn',summary:'【条文要点】第6条：资格分基础类（只能从事套期保值、对冲自身风险）与普通类（可代客、套利）；第14条：交易前应测算风险敞口并制定限额；第15条：建立独立风险管理部门与止损机制；第18条：逐日盯市与定期压力测试。',read:false},
+  ];
+  state.work.preservation = [
+    {id:121,title:'中华人民共和国民事诉讼法（保全与执行编）',source:'全国人大常委会（2023修正）',date:'2024-01-01',link:'http://www.npc.gov.cn',summary:'【条文要点】第103条：保全限于请求范围或与本案有关财物；第104条：诉前保全须情况紧急、提供担保，法院应在48小时内裁定；第235条：执行依据包括判决、裁定、调解书、仲裁裁决、公证债权文书；第249条执行措施：查询、扣押、冻结、划拨、变价被执行人财产。',read:false},
+    {id:122,title:'最高人民法院关于人民法院办理财产保全案件若干问题的规定',source:'法释〔2016〕22号（2020修正）',date:'2016-12-01',link:'https://www.court.gov.cn',summary:'【条文要点】第5条：保全申请应提供担保，数额相当于请求保全数额（错误保全负赔偿责任）；第7条：诉前保全法院须在48小时内作出裁定；第18条：续行保全须在期限届满前7日申请；第13条：可对财产灵活保全（活封），允许使用。',read:false},
+    {id:123,title:'最高人民法院关于人民法院民事执行中查封、扣押、冻结财产的规定',source:'法释〔2004〕15号（2020修正）',date:'2004-11-04',link:'https://www.court.gov.cn',summary:'【条文要点】第29条：查封动产≤2年、不动产≤3年、其他财产权≤3年，可续封；第5条：不得查封被执行人及其扶养家属生活必需品、必需居住房屋；第22条：查封效力及于从物与天然孳息；第26条：查封前已设担保物权优先。',read:false},
+    {id:124,title:'最高人民法院关于人民法院网络司法拍卖若干问题的规定',source:'法释〔2016〕18号',date:'2017-01-01',link:'https://www.court.gov.cn',summary:'【条文要点】第2条：以网络司法拍卖为原则（网拍优先）；第10条：起拍价不低于评估价70%（一拍），二拍不低于一拍保留价80%；第11条：一人参与竞买、出价不低于起拍价即成交；第24条：悔拍保证金不予退还。',read:false},
+    {id:125,title:'最高人民法院关于人民法院强制执行股权若干问题的规定',source:'法释〔2021〕20号',date:'2022-01-01',link:'https://www.court.gov.cn',summary:'【条文要点】第3条：冻结股权应通知公司及股权所在市场主体登记机关；冻结前已产生的股息红利可一并冻结；第5条：冻结期间不得对股权变价处分（转让、出质）；第6-7条：评估拍卖，其他股东在20日内行使优先购买权。',read:false},
+    {id:126,title:'最高人民法院关于进一步完善执行权制约机制加强执行监督的意见',source:'法发〔2021〕31号',date:'2021-12-06',link:'https://www.court.gov.cn',summary:'【条文要点】第2条：执行实施权与执行审查权分离（分权集约）；第6条：财产查控、评估、处置等环节相互监督；第9条：执行案款应在到账后30日内发放；第12条：终结本次执行（终本）须严格审查；强化执行公开。',read:false},
+    {id:127,title:'最高法关于股权冻结及执行异议复议相关批复',source:'最高人民法院司法解释',date:'—',link:'https://www.court.gov.cn',summary:'【条文要点】股权冻结自送达登记机关时生效；轮候冻结于在先冻结解除时自动生效；冻结期间股权不得转让、出质或分红（盈余分配权可冻结）；冻结效力优先于普通债权，但劣后于已登记担保物权。',read:false},
+    {id:128,title:'商业银行信用卡业务监督管理办法（催收与执行）',source:'银监会令2011年第2号',date:'2011-01-13',link:'https://www.nfra.gov.cn',summary:'【条文要点】第68条：催收不得对与债务无关的第三人催收，不得采用暴力、胁迫、恐吓或辱骂；第69条：应记录催收过程并存证；透支经诉讼后依判决强制执行；不良资产可转让，转让应通知债务人并保障其抗辩权。',read:false},
+  ];
+  state.work.case = SEED_CASES.map(c=>({...c}));
+  save();
+}
+
+/* 今日寄语 */
+const QUOTES = [
+  '坚持每天进步一点点，时间会给你最好的答案。',
+  '律师的专业，源自对每个细节的执着。',
+  '工作再忙，也要记得照顾自己的身体。',
+  '读懂英文合同，是走向国际化的第一步。',
+  '力量训练不仅是塑形，更是对生活的掌控力。',
+  '法律的精神，是让人拥有安全感。',
+  '每一个合规细节，都是对客户负责。',
+  '学习是终身的事，年龄只是数字。',
+  '把简单的事情重复做，你就是专家。',
+  '今天流的汗，是明天的从容。',
+];
+
+/* ============================================================
+   视图切换
+============================================================ */
+function switchView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.menu-item').forEach(m=>m.classList.remove('active'));
+  const view = document.getElementById('view-'+name);
+  if(view) view.classList.add('active');
+  const menuItem = document.querySelector(`.menu-item[data-view="${name}"]`);
+  if(menuItem) menuItem.classList.add('active');
+  const titles = {dashboard:'工作台',work:'工作模块',study:'英语学习',plan:'学习计划',workout:'运动打卡',memo:'备忘录',settings:'我的/设置'};
+  document.getElementById('pageTitle').textContent = titles[name] || name;
+  if(window.innerWidth<=768) closeSidebar();
+  // 触发刷新
+  if(name==='dashboard') renderDashboard();
+  if(name==='work'){
+    if(workView==='push'){document.getElementById('workPush').style.display='block';document.getElementById('workBrowse').style.display='none';renderWorkPush();}
+    else{document.getElementById('workBrowse').style.display='block';document.getElementById('workPush').style.display='none';renderWork();}
+  }
+  if(name==='study'){
+    if(studyCat==='dict'){
+      document.getElementById('studyToday').style.display='none';
+      document.getElementById('dictView').style.display='block';
+      renderDict();
+    } else {
+      document.getElementById('dictView').style.display='none';
+      document.getElementById('studyToday').style.display='block';
+      renderStudy();
+    }
+  }
+  if(name==='plan') renderPlan();
+  if(name==='workout') renderWorkout();
+  if(name==='memo') renderMemos();
+  if(name==='settings') {
+    document.getElementById('setting-name').value = state.profile.name;
+    document.getElementById('setting-sig').value = state.profile.sig;
+    document.getElementById('setting-token').value = auth.token || '';
+    document.getElementById('setting-gist').value = auth.gistId || '';
+    document.getElementById('gistStatus').textContent = auth.token ? ('已连接 · '+(auth.gistId?auth.gistId.slice(0,8):'未建 Gist')) : '未连接';
+    buildIconPicker();
+  }
+}
+
+document.querySelectorAll('.menu-item').forEach(m=>{
+  m.addEventListener('click',()=>switchView(m.dataset.view));
+});
+
+/* 移动端侧边栏 */
+const sidebar = document.getElementById('sidebar');
+const backdrop = document.getElementById('backdrop');
+document.getElementById('menuToggle').addEventListener('click',()=>{
+  sidebar.classList.add('open');backdrop.classList.add('show');
+});
+function closeSidebar(){sidebar.classList.remove('open');backdrop.classList.remove('show')}
+backdrop.addEventListener('click',closeSidebar);
+
+/* ============================================================
+   工作模块
+============================================================ */
+let workCat = 'regulation';
+let workView = 'push';
+document.querySelectorAll('#workTabs .work-tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('#workTabs .work-tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');workCat=t.dataset.cat;renderWork();
+  });
+});
+document.querySelectorAll('#workViewToggle .wv-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('#workViewToggle .wv-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');workView=b.dataset.mode;
+    if(workView==='push'){document.getElementById('workPush').style.display='block';document.getElementById('workBrowse').style.display='none';renderWorkPush();}
+    else{document.getElementById('workBrowse').style.display='block';document.getElementById('workPush').style.display='none';renderWork();}
+  });
+});
+
+/* 每日推送：按日期轮换，三类各 8 条 + 案例 1 条 */
+function getDailyPush(){
+  const dayIndex = Math.floor(Date.now()/86400000);
+  const pick = (arr,n)=>{
+    if(!arr||!arr.length) return [];
+    if(arr.length<=n) return arr.slice();
+    const start = dayIndex % (arr.length-n+1);
+    return arr.slice(start, start+n);
+  };
+  return {
+    regulation: pick(state.work.regulation,8),
+    compliance: pick(state.work.compliance,8),
+    preservation: pick(state.work.preservation,8),
+    case: pick(state.work.case,1),
+  };
+}
+function workItemHtml(it, cat){
+  const meta = `<div class="item-meta">
+      ${it.source?`<span>🏛 ${escapeHtml(it.source)}</span>`:''}
+      <span>📅 ${it.date}</span>
+      ${it.link?`<a href="${escapeHtml(it.link)}" target="_blank">🔗 原文</a>`:''}
+    </div>`;
+  let titleBlock = `<div class="item-title">${escapeHtml(it.title)}</div>`;
+  let body='';
+  if(cat==='case' && (it.fact||it.issue||it.analysis||it.lesson||it.title)){
+    titleBlock='';
+    body = `<div class="case-block">
+      ${it.title?`<div class="case-sec"><span class="case-label">📌 案件名称</span>${escapeHtml(it.title)}</div>`:''}
+      ${it.fact?`<div class="case-sec"><span class="case-label">📂 事实输入（案情）</span>${escapeHtml(it.fact).replace(/\n/g,'<br>')}</div>`:''}
+      ${it.issue?`<div class="case-sec"><span class="case-label">🎯 问题识别（焦点）</span>${escapeHtml(it.issue).replace(/\n/g,'<br>')}</div>`:''}
+      ${it.analysis?`<div class="case-sec"><span class="case-label">⚖️ 法律分析（根据·适用·策略）</span>${escapeHtml(it.analysis).replace(/\n/g,'<br>')}</div>`:''}
+      ${it.lesson?`<div class="case-sec"><span class="case-label">💡 知识沉淀（评析与启示）</span>${escapeHtml(it.lesson).replace(/\n/g,'<br>')}</div>`:''}
+    </div>`;
+  } else if(it.summary){
+    body = `<div class="item-summary">${escapeHtml(it.summary)}</div>`;
+  }
+  return `<div class="item ${it.read?'read':''}">
+    <div class="item-head">
+      ${titleBlock}
+      <div class="item-actions">
+        <button class="icon-btn" onclick="toggleRead(${it.id},'${cat}')" title="标记已读">${it.read?'↩️':'✓'}</button>
+        <button class="icon-btn" onclick="deleteWork(${it.id},'${cat}')" title="删除">🗑</button>
+      </div>
+    </div>
+    ${meta}
+    ${body}
+  </div>`;
+}
+function renderWorkPush(){
+  const push = getDailyPush();
+  const sections = [
+    {key:'regulation', label:'📚 金融法规', items:push.regulation},
+    {key:'compliance', label:'🛡️ 银行合规', items:push.compliance},
+    {key:'preservation', label:'⚖️ 保全与执行', items:push.preservation},
+    {key:'case', label:'📑 实时案例分析', items:push.case},
+  ];
+  let html = `<div class="push-header">
+      <div class="push-date">📅 ${today()} · 每日推送</div>
+      <div class="push-tip">每天自动更新一组学习内容；点击 ✓ 标记为已读，系统按日期轮换推送</div>
+    </div>`;
+  sections.forEach(s=>{
+    const readCount = s.items.filter(i=>i.read).length;
+    html += `<div class="push-section">
+      <div class="push-section-head">
+        <span class="push-section-title">${s.label}</span>
+        <span class="push-section-count">已读 ${readCount}/${s.items.length}</span>
+      </div>
+      <div class="item-list">${s.items.map(i=>workItemHtml(i,s.key)).join('') || '<div class="empty">暂无内容，可在「分类浏览」中补充</div>'}</div>
+    </div>`;
+  });
+  document.getElementById('workPush').innerHTML = html;
+}
+
+function addWorkItem(){
+  const title = document.getElementById('w-title').value.trim();
+  const source = document.getElementById('w-source').value.trim();
+  const date = document.getElementById('w-date').value || today();
+  const link = document.getElementById('w-link').value.trim();
+  const summary = document.getElementById('w-summary').value.trim();
+  if(!title){alert('请填写标题');return}
+  state.work[workCat].unshift({id:Date.now(),title,source,date,link,summary,read:false,created:now()});
+  save();
+  ['w-title','w-source','w-link','w-summary'].forEach(id=>document.getElementById(id).value='');
+  renderWork();updateDashboardStats();
+}
+
+function toggleRead(id,cat){
+  const item = state.work[cat].find(x=>x.id===id);
+  if(item) item.read=!item.read;
+  save();
+  if(workView==='push') renderWorkPush(); else renderWork();
+  updateDashboardStats();
+}
+function deleteWork(id,cat){
+  if(!confirm('确认删除？')) return;
+  state.work[cat] = state.work[cat].filter(x=>x.id!==id);
+  save();renderWork();updateDashboardStats();
+}
+
+function renderWork(){
+  const list = document.getElementById('workList');
+  const items = state.work[workCat] || [];
+  if(!items.length){list.innerHTML='<div class="empty">📭 暂无内容，点击上方表单添加第一条</div>';return}
+  list.innerHTML = items.map(it=>workItemHtml(it,workCat)).join('');
+}
+
+/* ============================================================
+   学习模块
+============================================================ */
+let studyCat = 'legal';
+document.querySelectorAll('#studyTabs .study-tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('#studyTabs .study-tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');studyCat=t.dataset.cat;
+    if(studyCat==='plan'){switchView('plan');return}
+    const todayEl=document.getElementById('studyToday');
+    const dictEl=document.getElementById('dictView');
+    if(studyCat==='dict'){
+      todayEl.style.display='none';dictEl.style.display='block';renderDict();
+    } else {
+      dictEl.style.display='none';todayEl.style.display='block';renderStudy();
+    }
+  });
+});
+
+function getTodayItems(){
+  // 按日期筛选或取前 N 条作为今日内容
+  const all = state.study[studyCat] || [];
+  // 简单策略：未掌握的排前面，已掌握排后面
+  return [...all].sort((a,b)=>(a.mastered?1:0)-(b.mastered?1:0));
+}
+
+function renderStudy(){
+  const items = getTodayItems();
+  const inLibCount = items.filter(i=>i.inLib).length;
+  const progressText = document.getElementById('studyProgressText');
+  const progressFill = document.getElementById('studyProgressFill');
+  const total = 13;
+  progressText.textContent = `${Math.min(inLibCount,total)} / ${total}`;
+  progressFill.style.width = `${Math.min(inLibCount/total*100,100)}%`;
+
+  const words = items.filter(i=>i.type==='word' || !i.type).slice(0,10);
+  const sents = items.filter(i=>i.type==='sentence').slice(0,3);
+
+  document.getElementById('vocabGrid').innerHTML = words.length
+    ? words.map(w=>`
+      <div class="vocab-card ${w.mastered?'mastered':''}">
+        <div class="card-actions">
+          <button class="icon-btn" onclick="speak('${escapeHtml(w.en)}')" title="发音">🔊</button>
+          <button class="icon-btn" onclick="toggleInLib('${studyCat}',${w.id})" title="加入词库">${w.inLib?'✅':'➕'}</button>
+          <button class="icon-btn" onclick="toggleMastered('${studyCat}',${w.id})" title="已掌握">${w.mastered?'↩️':'✓'}</button>
+        </div>
+        <div class="vocab-word">${escapeHtml(w.en)}</div>
+        ${w.phonetic?`<div class="vocab-phonetic">${escapeHtml(w.phonetic)}</div>`:''}
+        <div class="vocab-meaning">${escapeHtml(w.cn)}</div>
+        ${w.example?`<div class="vocab-example">💡 ${escapeHtml(w.example)}</div>`:''}
+      </div>
+    `).join('')
+    : '<div class="empty">暂无单词，使用下方表单添加</div>';
+
+  document.getElementById('sentenceList').innerHTML = sents.length
+    ? sents.map(s=>`
+      <div class="sentence-card">
+        <div class="sentence-actions">
+          <button class="icon-btn" onclick="speak('${escapeHtml(s.en)}')" title="发音">🔊</button>
+          <button class="icon-btn" onclick="toggleInLib('${studyCat}',${s.id})" title="加入词库">${s.inLib?'✅':'➕'}</button>
+          <button class="icon-btn" onclick="toggleMastered('${studyCat}',${s.id})" title="已掌握">${s.mastered?'↩️':'✓'}</button>
+        </div>
+        <div class="sentence-en">${escapeHtml(s.en)}</div>
+        <div class="sentence-cn">${escapeHtml(s.cn)}</div>
+        ${s.example?`<span class="sentence-tag">💡 ${escapeHtml(s.example)}</span>`:''}
+      </div>
+    `).join('')
+    : '<div class="empty">暂无短句，使用下方表单添加</div>';
+}
+
+function renderDict(){
+  const q = (document.getElementById('dictSearch').value||'').trim().toLowerCase();
+  const cats = [['legal','⚖️ 法律英语'],['compliance','🛡️ 合规英语'],['finance','💰 金融英语']];
+  let html = '';
+  cats.forEach(([cat,label])=>{
+    let arr = state.study[cat];
+    if(q) arr = arr.filter(it=>(it.en&&it.en.toLowerCase().includes(q))||(it.cn&&it.cn.toLowerCase().includes(q))||(it.phonetic&&it.phonetic.toLowerCase().includes(q)));
+    if(!arr.length) return;
+    html += `<div class="dict-group"><div class="dict-group-title">${label}</div>`;
+    html += arr.map(it=>`
+      <div class="vocab-card ${it.mastered?'mastered':''}">
+        <div class="card-actions">
+          <button class="icon-btn" onclick="speak('${escapeHtml(it.en)}')" title="发音">🔊</button>
+          <button class="icon-btn" onclick="toggleInLib('${cat}',${it.id})" title="加入词库">${it.inLib?'✅':'➕'}</button>
+          <button class="icon-btn" onclick="toggleMastered('${cat}',${it.id})" title="已掌握">${it.mastered?'↩️':'✓'}</button>
+        </div>
+        <div class="vocab-word">${escapeHtml(it.en)}</div>
+        ${it.phonetic?`<div class="vocab-phonetic">${escapeHtml(it.phonetic)}</div>`:''}
+        <div class="vocab-meaning">${escapeHtml(it.cn)}</div>
+        ${it.example?`<div class="vocab-example">💡 ${escapeHtml(it.example)}</div>`:''}
+      </div>`).join('');
+    html += `</div>`;
+  });
+  document.getElementById('dictList').innerHTML = html || '<div class="empty">未找到匹配的词条，换个关键词试试</div>';
+}
+
+function addStudyItem(){
+  const cat = document.getElementById('s-cat').value;
+  const type = document.getElementById('s-type').value.trim() || 'word';
+  const en = document.getElementById('s-en').value.trim();
+  const phonetic = document.getElementById('s-phonetic').value.trim();
+  const cn = document.getElementById('s-cn').value.trim();
+  const example = document.getElementById('s-example').value.trim();
+  if(!en||!cn){alert('请填写英文和中文释义');return}
+  state.study[cat].push({id:Date.now(),en,phonetic,cn,example,type,mastered:false,created:now()});
+  save();
+  ['s-en','s-phonetic','s-cn','s-example','s-type'].forEach(id=>document.getElementById(id).value='');
+  renderStudy();
+}
+
+function markStudy(){
+  if(!state.checkins.study.find(c=>c.date===today())){
+    state.checkins.study.push({date:today()});
+    updateStreak();
+  }
+}
+function renderStudyActive(){
+  if(studyCat==='dict') renderDict(); else renderStudy();
+}
+function toggleMastered(cat,id){
+  const item = state.study[cat].find(x=>x.id===id);
+  if(!item) return;
+  const was = item.mastered;
+  item.mastered = !item.mastered;
+  if(!was) markStudy();
+  save();renderStudyActive();updateDashboardStats();
+}
+function toggleInLib(cat,id){
+  const item = state.study[cat].find(x=>x.id===id);
+  if(!item) return;
+  const was = item.inLib;
+  item.inLib = !item.inLib;
+  if(!was) markStudy();
+  save();renderStudyActive();updateDashboardStats();
+}
+function speak(text){
+  if(!('speechSynthesis' in window)){alert('当前浏览器不支持语音朗读');return}
+  try{
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang='en-US'; u.rate=0.9; u.pitch=1;
+    window.speechSynthesis.speak(u);
+  }catch(e){alert('语音朗读失败：'+e.message)}
+}
+
+function renderPlan(){
+  const list = document.getElementById('planList');
+  list.innerHTML = state.plan.map(p=>`
+    <div class="plan-item">
+      <div class="plan-day">D${p.d}</div>
+      <div class="plan-info">
+        <div class="plan-theme">${escapeHtml(p.t)}</div>
+        <div class="plan-detail">${escapeHtml(p.detail)}</div>
+      </div>
+      <div class="plan-status">主题学习</div>
+    </div>
+  `).join('');
+}
+
+/* ============================================================
+   锻炼模块
+============================================================ */
+let workoutDay = new Date().getDay(); // 0=周日
+// 找最近一次训练日
+const order = [1,2,3,4,5,6,0];
+workoutDay = order[((new Date().getDay()+6)%7)] || 1;
+
+document.querySelectorAll('#workoutTabs .workout-tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('#workoutTabs .workout-tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');workoutDay=parseInt(t.dataset.day);renderWorkout();
+  });
+});
+
+function getTodayExercises(){
+  return state.workout[workoutDay] || [];
+}
+
+function renderWorkout(){
+  // 周计划条
+  const todayD = new Date().getDay();
+  const weekDays = [];
+  for(let i=0;i<7;i++){
+    const d = new Date();d.setDate(d.getDate()-todayD+i);
+    weekDays.push({dow:['日','一','二','三','四','五','六'][d.getDay()],date:d.getDate(),iso:d.toISOString().slice(0,10),day:d.getDay()});
+  }
+  const wp = document.getElementById('weekPlan');
+  wp.innerHTML = weekDays.map(d=>{
+    const done = state.checkins.workout.find(c=>c.date===d.iso);
+    const isActive = order[((d.day+6)%7)] === workoutDay;
+    return `<div class="day-cell ${done?'done':''} ${isActive?'active':''}" onclick="workoutDay=${order[((d.day+6)%7)]};renderWorkout()">
+      <div class="dow">周${d.dow}</div>
+      <div class="date-num">${d.date}</div>
+    </div>`;
+  }).join('');
+
+  const exercises = getTodayExercises();
+  const doneIds = state.checkins.workout.find(c=>c.date===today() && c.day===workoutDay)?.done || [];
+  const el = document.getElementById('exerciseList');
+  if(!exercises.length){
+    el.innerHTML = '<div class="empty">暂无训练动作，使用下方表单添加</div>';
+    return;
+  }
+  el.innerHTML = exercises.map((ex,i)=>{
+    const isDone = doneIds.includes(i);
+    return `
+    <div class="exercise ${isDone?'done':''}">
+      <div class="ex-check ${isDone?'checked':''}" onclick="toggleExercise(${i})">${isDone?'✓':''}</div>
+      <div class="exercise-info">
+        <div class="ex-name">${escapeHtml(ex.name)} <span class="tag">${escapeHtml(ex.part||'')}</span> <span class="tag warn">${escapeHtml(ex.equip||'')}</span></div>
+        <div class="ex-meta">📊 ${escapeHtml(ex.sets||'')} · ⏱ ${escapeHtml(ex.duration||'')}</div>
+        ${ex.detail?`<div class="ex-detail">${escapeHtml(ex.detail)}</div>`:''}
+      </div>
+    </div>
+  `}).join('');
+}
+
+function toggleExercise(idx){
+  const date = today();
+  let entry = state.checkins.workout.find(c=>c.date===date && c.day===workoutDay);
+  if(!entry){entry = {date,day:workoutDay,done:[]};state.checkins.workout.push(entry)}
+  const pos = entry.done.indexOf(idx);
+  if(pos>=0) entry.done.splice(pos,1);
+  else entry.done.push(idx);
+  if(entry.done.length===getTodayExercises().length && entry.done.length>0){
+    updateStreak();
+  }
+  save();renderWorkout();updateDashboardStats();
+}
+
+function addExercise(){
+  const name = document.getElementById('e-name').value.trim();
+  if(!name){alert('请填写动作名');return}
+  const day = parseInt(document.getElementById('e-day').value);
+  const ex = {
+    name,
+    part:document.getElementById('e-part').value.trim(),
+    equip:document.getElementById('e-equipment').value.trim(),
+    sets:document.getElementById('e-sets').value.trim(),
+    duration:document.getElementById('e-duration').value.trim(),
+    detail:document.getElementById('e-detail').value.trim(),
+  };
+  state.workout[day].push(ex);
+  save();
+  ['e-name','e-part','e-equipment','e-sets','e-duration','e-detail'].forEach(id=>document.getElementById(id).value='');
+  workoutDay = day;renderWorkout();
+}
+
+/* 计时器 */
+let timerSeconds = 0;
+let timerInterval = null;
+let timerRunning = false;
+let timerMode = 'rest';
+
+document.querySelectorAll('.timer-mode-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.timer-mode-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');timerMode=b.dataset.mode;
+  });
+});
+
+function toggleTimer(){
+  if(timerRunning){
+    clearInterval(timerInterval);timerRunning=false;
+    document.getElementById('timerBtn').textContent='继续';
+  } else {
+    timerInterval = setInterval(()=>{
+      timerSeconds += 1;
+      renderTimer();
+    },1000);
+    timerRunning=true;
+    document.getElementById('timerBtn').textContent='暂停';
+  }
+}
+function resetTimer(){
+  clearInterval(timerInterval);timerRunning=false;
+  timerSeconds = 0;
+  document.getElementById('timerBtn').textContent='开始';
+  renderTimer();
+}
+function renderTimer(){
+  const h = Math.floor(timerSeconds/3600);
+  const m = String(Math.floor((timerSeconds%3600)/60)).padStart(2,'0');
+  const s = String(timerSeconds%60).padStart(2,'0');
+  document.getElementById('timerDisplay').textContent = h>0 ? `${h}:${m}:${s}` : `${m}:${s}`;
+}
+function playBeep(){
+  const ctx = new (window.AudioContext||window.webkitAudioContext)();
+  const osc = ctx.createOscillator();
+  osc.frequency.value=880;osc.connect(ctx.destination);osc.start();
+  setTimeout(()=>{osc.stop();ctx.close()},200);
+}
+resetTimer();
+
+/* ============================================================
+   备忘录
+============================================================ */
+function addMemo(){
+  const text = document.getElementById('memoInput').value.trim();
+  if(!text){return}
+  state.memos.unshift({id:Date.now(),text,time:now()});
+  save();document.getElementById('memoInput').value='';renderMemos();
+}
+function deleteMemo(id){
+  if(!confirm('确认删除？')) return;
+  state.memos = state.memos.filter(m=>m.id!==id);
+  save();renderMemos();
+}
+function renderMemos(){
+  const list = document.getElementById('memoList');
+  list.innerHTML = state.memos.length
+    ? state.memos.map(m=>`
+      <div class="memo">
+        <div class="memo-time">${new Date(m.time).toLocaleString('zh-CN')} <button class="icon-btn" style="float:right" onclick="deleteMemo(${m.id})">🗑</button></div>
+        ${escapeHtml(m.text)}
+      </div>
+    `).join('')
+    : '<div class="empty">还没有记录</div>';
+}
+
+/* ============================================================
+   首页 Dashboard
+============================================================ */
+function todayWorkRead(){
+  const p = getDailyPush();
+  return p.regulation.filter(i=>i.read).length
+       + p.compliance.filter(i=>i.read).length
+       + p.preservation.filter(i=>i.read).length
+       + p.case.filter(i=>i.read).length;
+}
+function todayWorkTotal(){
+  const p = getDailyPush();
+  return p.regulation.length+p.compliance.length+p.preservation.length+p.case.length;
+}
+function todayStudyCount(){
+  return state.checkins.study.filter(c=>c.date===today()).length;
+}
+function todayWorkoutCount(){
+  const entry = state.checkins.workout.find(c=>c.date===today());
+  if(!entry) return 0;
+  return entry.done.length;
+}
+
+function updateDashboardStats(){
+  document.getElementById('stat-work').textContent = `${todayWorkRead()}/${todayWorkTotal()}`;
+  document.getElementById('stat-study').textContent = `${Math.min(todayStudyCount(),13)}/13`;
+  document.getElementById('stat-workout').textContent = todayWorkoutCount();
+
+  const wPct = todayWorkTotal() ? todayWorkRead()/todayWorkTotal()*100 : 0;
+  const sPct = Math.min(todayStudyCount()/13*100,100);
+  const woPct = (()=>{
+    const entry = state.checkins.workout.find(c=>c.date===today());
+    if(!entry) return 0;
+    const total = getTodayExercises().length;
+    return total? entry.done.length/total*100 : 0;
+  })();
+  document.getElementById('prog-work').style.width = wPct+'%';
+  document.getElementById('prog-study').style.width = sPct+'%';
+  document.getElementById('prog-workout').style.width = woPct+'%';
+}
+
+function renderDashboard(){
+  updateDashboardStats();
+  // 计算连续打卡
+  let streak = 0;
+  const dates = new Set();
+  state.checkins.study.forEach(c=>dates.add(c.date));
+  state.checkins.workout.forEach(c=>dates.add(c.date));
+  let d = new Date();
+  while(dates.has(d.toISOString().slice(0,10))){
+    streak++;d.setDate(d.getDate()-1);
+  }
+  state.streak = streak;
+  document.getElementById('streakCount').textContent = streak;
+  document.getElementById('quoteTag').textContent = `第 ${streak+1} 天`;
+  document.getElementById('quoteText').textContent = QUOTES[(streak)%QUOTES.length];
+}
+
+function updateStreak(){
+  // 自动重算 streak
+  renderDashboard();save();
+}
+
+/* ============================================================
+   设置
+============================================================ */
+function saveSettings(){
+  state.profile.name = document.getElementById('setting-name').value || '黄雨朵';
+  state.profile.sig = document.getElementById('setting-sig').value || '';
+  let ic = document.getElementById('setting-icon').value.trim();
+  if(!ic) ic = document.querySelector('#iconPicker .icon-opt.active')?.dataset.icon || '🏠';
+  state.profile.icon = ic;
+  save();renderProfile();applyIcon();
+}
+function renderProfile(){
+  document.getElementById('userName').textContent = state.profile.name;
+  document.querySelector('.signature').textContent = state.profile.sig;
+}
+const ICON_PRESETS = ['🏠','🌸','💼','📚','🌟','✨','💎','🍃','🌷','🦋','🔆','🧩'];
+function buildIconPicker(){
+  const cur = state.profile.icon || '🏠';
+  document.getElementById('iconPicker').innerHTML = ICON_PRESETS.map(e=>
+    `<div class="icon-opt ${e===cur?'active':''}" data-icon="${e}" onclick="pickIcon('${e}')">${e}</div>`
+  ).join('');
+  const customInput = document.getElementById('setting-icon');
+  if(customInput) customInput.value = ICON_PRESETS.includes(cur) ? '' : cur;
+}
+function pickIcon(e){
+  document.getElementById('setting-icon').value = '';
+  document.querySelectorAll('#iconPicker .icon-opt').forEach(x=>x.classList.toggle('active', x.dataset.icon===e));
+  state.profile.icon = e; save(); applyIcon();
+}
+function applyIcon(){
+  const ic = state.profile.icon || '🏠';
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9' font-size='90' x='5'>${ic}</text></svg>`;
+  const link = document.getElementById('appFavicon');
+  if(link) link.href = 'data:image/svg+xml,' + encodeURIComponent(svg);
+  const menuIcon = document.querySelector('.menu-item[data-view="dashboard"] .menu-icon');
+  if(menuIcon) menuIcon.textContent = ic;
+}
+
+function connectCloud(){
+  const tk = document.getElementById('setting-token').value.trim();
+  const gid = document.getElementById('setting-gist').value.trim();
+  if(!tk){ alert('请先粘贴 GitHub Token'); return; }
+  auth.token = tk;
+  if(gid) auth.gistId = gid;
+  saveAuth(auth);
+  (async()=>{
+    try{
+      if(!auth.gistId){
+        await createGist();
+        document.getElementById('setting-gist').value = auth.gistId;
+        document.getElementById('gistStatus').textContent = '已新建 Gist';
+      }
+      const ok = await loadCloud();
+      if(ok){
+        // 若云端为空且本地有旧数据，提示导入
+        const old = localStorage.getItem('duo_workbench_v1');
+        if((!state.work.regulation.length && !state.study.legal.length) && old){
+          if(confirm('检测到本地旧数据，是否导入到云端？')) importOldData();
+        }
+        seedWorkout(); seedStudy(); seedWork();
+        save();
+        setSyncStatus('☁ 已连接','ok');
+        document.getElementById('gistStatus').textContent = '已连接 · '+auth.gistId.slice(0,8);
+        alert('云端连接成功！数据已同步。');
+        switchView('dashboard');
+      }
+    }catch(e){ alert('连接失败：'+e.message); }
+  })();
+}
+function importOldData(){
+  const raw = localStorage.getItem('duo_workbench_v1');
+  if(!raw){ alert('没有找到本地旧数据'); return; }
+  try{
+    const old = JSON.parse(raw);
+    // 合并：云端为空的项用旧数据补全
+    const merge = (k,src)=>{ if(Array.isArray(src) && src.length && (!state[k]||!state[k].length)) state[k]=src; };
+    if(old.work){ Object.keys(old.work).forEach(k=>merge(k, old.work[k])); }
+    if(old.study){ Object.keys(old.study).forEach(k=>merge(k, old.study[k])); }
+    if(old.plan) state.plan = old.plan;
+    if(old.workout) state.workout = old.workout;
+    if(old.memos) state.memos = old.memos;
+    if(old.checkins) state.checkins = old.checkins;
+    if(old.profile) state.profile = Object.assign(state.profile, old.profile);
+    save();
+    alert('旧数据已导入云端（本地副本可手动清除）');
+    switchView('dashboard');
+  }catch(e){ alert('导入失败：'+e.message); }
+}
+
+/* ============================================================
+   工具函数
+============================================================ */
+function escapeHtml(s){
+  if(s==null) return '';
+  return String(s).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+
+/* ============================================================
+   启动
+============================================================ */
+function updateDateLabel(){
+  const d = new Date();
+  const w = ['日','一','二','三','四','五','六'][d.getDay()];
+  document.getElementById('dateLabel').textContent = `${d.getMonth()+1}月${d.getDate()}日 · 周${w}`;
+}
+updateDateLabel();
+applyIcon();
+buildIconPicker();
+renderProfile();
+(async()=>{
+  if(auth.token && auth.gistId){
+    await loadCloud();
+    setSyncStatus('☁ 已同步','ok');
+  } else {
+    setSyncStatus('☁ 未连接云端','');
+  }
+  seedWorkout(); seedStudy(); seedWork();
+  save();
+  renderDashboard();
+})();
+setInterval(updateDateLabel, 60000);
+window.addEventListener('beforeunload', ()=>{ if(_syncTimer) doSync(); });
+</script>
+</body>
+</html>
