@@ -773,8 +773,14 @@ a{color:var(--primary);text-decoration:none}
    数据层（GitHub Gist 云端存储）
 ============================================================ */
 const AUTH_KEY = 'duo_workbench_auth';
-function loadAuth(){ try{ return JSON.parse(localStorage.getItem(AUTH_KEY))||{}; }catch(e){ return {}; } }
-function saveAuth(a){ try{ localStorage.setItem(AUTH_KEY, JSON.stringify(a)); }catch(e){} }
+// 安全存储封装：沙箱 iframe（缺 allow-same-origin）下 localStorage 访问会抛 SecurityError
+// 回退链：localStorage → sessionStorage → 内存对象
+const _mem = {};
+function _safeGet(k){ try{ return window.localStorage.getItem(k); }catch(e){ try{ return window.sessionStorage.getItem(k); }catch(e2){ return Object.prototype.hasOwnProperty.call(_mem,k)?_mem[k]:null; } } }
+function _safeSet(k,v){ try{ window.localStorage.setItem(k,v); }catch(e){ try{ window.sessionStorage.setItem(k,v); }catch(e2){ _mem[k]=v; } } }
+function _safeDel(k){ try{ window.localStorage.removeItem(k); }catch(e){ try{ window.sessionStorage.removeItem(k); }catch(e2){ delete _mem[k]; } } }
+function loadAuth(){ try{ return JSON.parse(_safeGet(AUTH_KEY))||{}; }catch(e){ return {}; } }
+function saveAuth(a){ try{ _safeSet(AUTH_KEY, JSON.stringify(a)); }catch(e){} }
 let auth = loadAuth();
 const today = () => new Date().toISOString().slice(0,10);
 const now   = () => new Date().toISOString();
@@ -1686,7 +1692,7 @@ function connectCloud(){
       const ok = await loadCloud();
       if(ok){
         // 若云端为空且本地有旧数据，提示导入
-        const old = localStorage.getItem('duo_workbench_v1');
+        const old = _safeGet('duo_workbench_v1');
         if((!state.work.regulation.length && !state.study.legal.length) && old){
           if(confirm('检测到本地旧数据，是否导入到云端？')) importOldData();
         }
@@ -1701,7 +1707,7 @@ function connectCloud(){
   })();
 }
 function importOldData(){
-  const raw = localStorage.getItem('duo_workbench_v1');
+  const raw = _safeGet('duo_workbench_v1');
   if(!raw){ alert('没有找到本地旧数据'); return; }
   try{
     const old = JSON.parse(raw);
