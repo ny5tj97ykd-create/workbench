@@ -58,16 +58,18 @@ a{color:var(--primary);text-decoration:none}
   z-index:100;
 }
 .profile{
-  padding:28px 20px 22px;text-align:center;
+  padding:24px 20px 20px;text-align:center;
   border-bottom:1px solid rgba(91,143,249,.1);
 }
-.avatar{
-  width:64px;height:64px;border-radius:50%;
+.brand{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 18px;border-radius:14px;
   background:linear-gradient(135deg,#7BA8FF,#5B8FF9);
-  display:flex;align-items:center;justify-content:center;
-  color:#fff;font-size:28px;margin:0 auto 12px;
+  color:#fff;font-size:16px;font-weight:700;letter-spacing:1px;
+  margin:0 auto 12px;
   box-shadow:0 4px 14px rgba(91,143,249,.35);
 }
+.brand-icon{font-size:20px;line-height:1}
 .name{font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px}
 .signature{font-size:11px;color:var(--text-sub)}
 
@@ -438,16 +440,16 @@ a{color:var(--primary);text-decoration:none}
   <!-- 侧边栏 -->
   <aside class="sidebar" id="sidebar">
     <div class="profile">
-      <div class="avatar">朵</div>
+      <div class="brand"><span class="brand-icon">💼</span><span>工作台</span></div>
       <div class="name" id="userName">黄雨朵</div>
       <div class="signature">陪伴者工作群</div>
     </div>
     <nav class="menu">
-      <div class="menu-item active" data-view="dashboard"><span class="menu-icon">🏠</span>工作台</div>
-      <div class="menu-item" data-view="work"><span class="menu-icon">📋</span>工作台</div>
-      <div class="menu-item" data-view="study"><span class="menu-icon">📖</span>工作台</div>
-      <div class="menu-item" data-view="workout"><span class="menu-icon">💪</span>工作台</div>
-      <div class="menu-item" data-view="memo"><span class="menu-icon">📝</span>工作台</div>
+      <div class="menu-item active" data-view="dashboard"><span class="menu-icon">🏠</span>首页</div>
+      <div class="menu-item" data-view="work"><span class="menu-icon">📋</span>工作</div>
+      <div class="menu-item" data-view="study"><span class="menu-icon">📖</span>学习</div>
+      <div class="menu-item" data-view="workout"><span class="menu-icon">💪</span>锻炼</div>
+      <div class="menu-item" data-view="memo"><span class="menu-icon">📝</span>备忘录</div>
     </nav>
     <div class="menu-footer">
       <div class="menu-item" data-view="settings"><span class="menu-icon">⚙️</span>我的/设置</div>
