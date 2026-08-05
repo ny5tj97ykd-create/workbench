@@ -441,7 +441,7 @@ a{color:var(--primary);text-decoration:none}
   <aside class="sidebar" id="sidebar">
     <div class="profile">
       <div class="brand"><span class="brand-icon">💼</span><span>工作台</span></div>
-      <div class="name" id="userName">黄雨朵</div>
+      <div class="name" id="userName">工作台</div>
       <div class="signature">陪伴者工作群</div>
     </div>
     <nav class="menu">
@@ -719,7 +719,7 @@ a{color:var(--primary);text-decoration:none}
           <div class="settings-section">
             <div class="settings-row">
               <div class="settings-label">姓名</div>
-              <input type="text" id="setting-name" value="黄雨朵" />
+              <input type="text" id="setting-name" value="工作台" />
             </div>
             <div class="settings-row">
               <div class="settings-label">签名</div>
@@ -789,7 +789,7 @@ const now   = () => new Date().toISOString();
 
 function defaultData(){
   return {
-    profile:{name:'黄雨朵',sig:'陪伴者工作群',icon:'🏠'},
+    profile:{name:'工作台',sig:'陪伴者工作群',icon:'🏠'},
     work:{regulation:[],compliance:[],preservation:[],case:[]},
     study:{legal:[],compliance:[],finance:[]},
     plan:[
@@ -1643,7 +1643,7 @@ function updateStreak(){
    设置
 ============================================================ */
 function saveSettings(){
-  state.profile.name = document.getElementById('setting-name').value || '黄雨朵';
+  state.profile.name = document.getElementById('setting-name').value || '工作台';
   state.profile.sig = document.getElementById('setting-sig').value || '';
   let ic = document.getElementById('setting-icon').value.trim();
   if(!ic) ic = document.querySelector('#iconPicker .icon-opt.active')?.dataset.icon || '🏠';
